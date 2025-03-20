@@ -6,4 +6,7 @@ export const colors = {
   text: '#ffffff',
   desc: '#e6e6e6',
   blue: '#3168e0b3',
+  blue1: '#0aacff',
+  white: '#fafafa',
+  green: '#a2f068'
 };
