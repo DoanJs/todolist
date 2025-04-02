@@ -3,7 +3,7 @@ import {DimensionValue, View} from 'react-native';
 import {colors} from '../contants/colors';
 import RowComponent from './RowComponent';
 import TextComponent from './TextComponent';
-import { fontFamilies } from '../contants/fontFamilies';
+import {fontFamilies} from '../contants/fontFamilies';
 
 interface Props {
   size?: 'small' | 'default' | 'large';
@@ -36,7 +36,12 @@ const ProgressBarComponent = (props: Props) => {
 
       <RowComponent justify="space-between" styles={{marginTop: 4}}>
         <TextComponent text="Progress" size={12} />
-        <TextComponent text={`${percent}`} size={12} flex={0} font={fontFamilies.bold} />
+        <TextComponent
+          text={`${percent}`}
+          size={12}
+          flex={0}
+          font={fontFamilies.bold}
+        />
       </RowComponent>
     </View>
   );
