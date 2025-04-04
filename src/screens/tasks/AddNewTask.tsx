@@ -3,15 +3,17 @@ import Container from '../../components/Container';
 import InputComponent from '../../components/InputComponent';
 import SectionComponent from '../../components/SectionComponent';
 import {TaskModel} from '../../models/TaskModel';
-import {Button} from 'react-native';
+import {Button, View} from 'react-native';
 import DateTimePickerComponent from '../../components/DateTimePickerComponent';
+import RowComponent from '../../components/RowComponent';
+import SpaceConponent from '../../components/SpaceConponent';
 
 const initValue: TaskModel = {
   title: '',
   description: '',
   dueDate: new Date(),
-  start: '',
-  end: '',
+  start: new Date(),
+  end: new Date(),
   uids: [],
   fileUrls: [],
 };
@@ -54,10 +56,31 @@ const AddNewTask = ({navigation}: any) => {
         <DateTimePickerComponent
           selected={taskDetail.dueDate}
           onSelect={val => handleChangeValue('dueDate', val)}
-          placeholder='Choice'
-          type='date'
-          title='Due Date'
+          placeholder="Choice"
+          type="date"
+          title="Due Date"
         />
+        <RowComponent>
+          <View style={{flex: 1}}>
+            <DateTimePickerComponent
+              selected={taskDetail.start}
+              onSelect={val => handleChangeValue('start', val)}
+              placeholder="Choice"
+              type="time"
+              title="Start"
+            />
+          </View>
+          <SpaceConponent width={10} />
+          <View style={{flex: 1}}>
+            <DateTimePickerComponent
+              selected={taskDetail.end}
+              onSelect={val => handleChangeValue('end', val)}
+              placeholder="Choice"
+              type="time"
+              title="End"
+            />
+          </View>
+        </RowComponent>
       </SectionComponent>
 
       <SectionComponent>

@@ -1,13 +1,13 @@
-import React, {useState} from 'react';
-import {Button, Dimensions, Modal, Text, View} from 'react-native';
-import TitleComponent from './TitleComponent';
-import RowComponent from './RowComponent';
-import TextComponent from './TextComponent';
-import {colors} from '../contants/colors';
 import {ArrowDown2} from 'iconsax-react-native';
-import {globalStyles} from '../styles/globalStyles';
-import SpaceConponent from './SpaceConponent';
+import React, {useState} from 'react';
+import {Button, Modal, View} from 'react-native';
 import DatePicker from 'react-native-date-picker';
+import {colors} from '../contants/colors';
+import {globalStyles} from '../styles/globalStyles';
+import RowComponent from './RowComponent';
+import SpaceConponent from './SpaceConponent';
+import TextComponent from './TextComponent';
+import TitleComponent from './TitleComponent';
 
 interface Props {
   type?: 'date' | 'time' | 'datetime';
@@ -35,9 +35,15 @@ const DateTimePickerComponent = (props: Props) => {
           <TextComponent
             text={
               selected
-                ? `${selected.getDate()}/${
-                    selected.getMonth() + 1
-                  }/${selected.getFullYear()}`
+                ? type === 'time'
+                  ? `${selected.getHours()}:${
+                      selected.getMinutes() <= 9
+                        ? '0' + selected.getMinutes()
+                        : selected.getMinutes()
+                    }`
+                  : `${selected.getDate()}/${
+                      selected.getMonth() + 1
+                    }/${selected.getFullYear()}`
                 : placeholder
                 ? placeholder
                 : ''
@@ -71,7 +77,7 @@ const DateTimePickerComponent = (props: Props) => {
             />
             <View>
               <DatePicker
-                mode={type}
+                mode={type ? type : 'datetime'}
                 date={date}
                 onDateChange={val => setDate(val)}
                 locale="vi"

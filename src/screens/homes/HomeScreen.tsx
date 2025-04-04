@@ -2,6 +2,7 @@ import {
   Add,
   Edit2,
   Element4,
+  Logout,
   Notification,
   SearchNormal1,
 } from 'iconsax-react-native';
@@ -21,8 +22,11 @@ import TextComponent from '../../components/TextComponent';
 import TitleComponent from '../../components/TitleComponent';
 import {colors} from '../../contants/colors';
 import {globalStyles} from '../../styles/globalStyles';
+import { auth } from '../../../firebaseConfig';
 
 const HomeScreen = ({navigation}: any) => {
+  const user = auth.currentUser;
+
   return (
     <View style={{flex: 1}}>
       <Container isScroll>
@@ -34,8 +38,16 @@ const HomeScreen = ({navigation}: any) => {
         </SectionComponent>
 
         <SectionComponent>
-          <TextComponent text="Hi, Jason" />
-          <TitleComponent text="Be Productive today" />
+          <RowComponent>
+            <View style={{flex: 1}}>
+              <TextComponent text={`Hi, ${user?.email}`} />
+              <TitleComponent text="Be Productive today" />
+            </View>
+
+            <TouchableOpacity onPress={async () => auth.signOut()}>
+              <Logout size={22} color="coral" />
+            </TouchableOpacity>
+          </RowComponent>
         </SectionComponent>
 
         <SectionComponent>
@@ -150,8 +162,8 @@ const HomeScreen = ({navigation}: any) => {
           alignItems: 'center',
         }}>
         <TouchableOpacity
-        onPress={() => navigation.navigate('AddNewTask')}
-        activeOpacity={1}
+          onPress={() => navigation.navigate('AddNewTask')}
+          activeOpacity={1}
           style={[
             globalStyles.row,
             {
@@ -161,7 +173,7 @@ const HomeScreen = ({navigation}: any) => {
               padding: 16,
             },
           ]}>
-          <TextComponent text="Add new task" flex={0}/>
+          <TextComponent text="Add new task" flex={0} />
           <Add size={22} color={colors.white} />
         </TouchableOpacity>
       </View>
