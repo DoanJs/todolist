@@ -79,7 +79,10 @@ const DateTimePickerComponent = (props: Props) => {
               <DatePicker
                 mode={type ? type : 'datetime'}
                 date={date}
-                onDateChange={val => setDate(val)}
+                onDateChange={val => {
+                  const currentDate = val || date
+                  setDate(currentDate)
+                }}
                 locale="vi"
               />
             </View>
