@@ -1,5 +1,5 @@
 import React, {ReactNode, useState} from 'react';
-import {TextInput, TouchableOpacity, View} from 'react-native';
+import {StyleProp, TextInput, TouchableOpacity, View, ViewStyle} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {colors} from '../contants/colors';
 import {globalStyles} from '../styles/globalStyles';
@@ -18,6 +18,7 @@ interface Props {
   multible?: boolean;
   numberOfLine?: number;
   isPassword?: boolean;
+  styles?: StyleProp<ViewStyle>
 }
 
 const InputComponent = (props: Props) => {
@@ -32,11 +33,12 @@ const InputComponent = (props: Props) => {
     multible,
     numberOfLine,
     isPassword,
+    styles
   } = props;
   const [showPass, setShowPass] = useState(false);
 
   return (
-    <View style={{marginBottom: 16}}>
+    <View style={[{marginBottom: 16}, styles]}>
       {title && <TitleComponent text={title} flex={0} />}
       <RowComponent
         styles={[
@@ -47,7 +49,7 @@ const InputComponent = (props: Props) => {
             paddingVertical: 14,
             paddingHorizontal: 10,
             alignItems: multible ? 'flex-start' : 'center',
-          },
+          }
         ]}>
         {prefix && prefix}
         <View

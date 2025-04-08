@@ -1,12 +1,27 @@
-import React, {useState} from 'react';
+import {DocumentPickerResponse, pick} from '@react-native-documents/picker';
+import Cloudinary, {upload, UploadApiOptions} from 'cloudinary-react-native';
+import {addDoc, collection, getDocs} from 'firebase/firestore';
+import {AttachSquare} from 'iconsax-react-native';
+import React, {useEffect, useState} from 'react';
+import {View} from 'react-native';
+import {db} from '../../../firebaseConfig';
+import ButtonComponent from '../../components/ButtonComponent';
 import Container from '../../components/Container';
-import InputComponent from '../../components/InputComponent';
-import SectionComponent from '../../components/SectionComponent';
-import {TaskModel} from '../../models/TaskModel';
-import {Button, View} from 'react-native';
 import DateTimePickerComponent from '../../components/DateTimePickerComponent';
+import DropdownPicker from '../../components/DropdownPicker';
+import InputComponent from '../../components/InputComponent';
 import RowComponent from '../../components/RowComponent';
+import SectionComponent from '../../components/SectionComponent';
 import SpaceConponent from '../../components/SpaceConponent';
+import TextComponent from '../../components/TextComponent';
+import TitleComponent from '../../components/TitleComponent';
+import {colors} from '../../contants/colors';
+import {SelectModel} from '../../models/SelectModel';
+import {TaskModel} from '../../models/TaskModel';
+
+import {launchImageLibrary} from 'react-native-image-picker';
+import axios from 'axios';
+import {CLOUDINARY_URL, UPLOAD_PRESET} from '../../../cloudinary.config';
 
 const initValue: TaskModel = {
   title: '',
@@ -20,8 +35,74 @@ const initValue: TaskModel = {
 
 const AddNewTask = ({navigation}: any) => {
   const [taskDetail, setTaskDetail] = useState<TaskModel>(initValue);
+  const [usersSelect, setUsersSelect] = useState<SelectModel[]>([]);
+  const [attachments, setAttachments] = useState<DocumentPickerResponse[]>([]);
+  const [attachmentsUrl, setAttachmentsUrl] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChangeValue = (id: string, value: string | Date) => {
+  useEffect(() => {
+    handlegetAllUsers();
+  }, []);
+
+  const handleUploadFileToClodinary = async (file: DocumentPickerResponse) => {
+    // setUploading(true);
+    const items = [...taskDetail.fileUrls];
+    const data = new FormData();
+    data.append('file', file);
+    data.append('upload_preset', UPLOAD_PRESET);
+
+    try {
+      const res = await axios.post(CLOUDINARY_URL, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      items.push(res.data.secure_url);
+      handleChangeValue('fileUrls', items);
+      console.log(items);
+    } catch (err: any) {
+      console.error('Upload attachments failed:', err.message);
+    } finally {
+      // setUploading(false);
+    }
+  };
+
+  const handlePickerDocument = async () => {
+    try {
+      const result = await pick({
+        mode: 'open',
+      });
+      setAttachments(result);
+    } catch (error: any) {
+      console.log(`handlePickerDocument error: ${error.message}`);
+    }
+  };
+
+  const handlegetAllUsers = async () => {
+    await getDocs(collection(db, 'users'))
+      .then(snap => {
+        if (snap.empty) {
+          console.log(`Users data not found`);
+        } else {
+          const items: SelectModel[] = [];
+
+          snap.forEach(item => {
+            items.push({
+              label: item.data().name,
+              value: item.id,
+            });
+          });
+
+          setUsersSelect(items);
+        }
+      })
+      .catch((error: any) =>
+        console.log(`Can not get all users by ${error.message}`),
+      );
+  };
+
+  const handleChangeValue = (id: string, value: string | string[] | Date) => {
     const item: any = {...taskDetail};
 
     item[`${id}`] = value;
@@ -29,8 +110,22 @@ const AddNewTask = ({navigation}: any) => {
     setTaskDetail(item);
   };
 
-  const handleAddNewTask = () => {
-    console.log(taskDetail);
+  const handleAddNewTask = async () => {
+    setIsLoading(true);
+    if (attachments.length > 0) {
+      attachments.map((item: DocumentPickerResponse) =>
+        handleUploadFileToClodinary(item),
+      );
+    }
+
+    await addDoc(collection(db, 'taks'), taskDetail)
+      .then(() => {
+        console.log('New task added!!!');
+        navigation.goBack();
+      })
+      .catch((error: any) => console.log(`Add task error: ${error.message}`));
+
+    setIsLoading(false);
   };
 
   return (
@@ -81,11 +176,39 @@ const AddNewTask = ({navigation}: any) => {
             />
           </View>
         </RowComponent>
+
+        <DropdownPicker
+          title="Members"
+          selected={taskDetail.uids}
+          items={usersSelect}
+          onSelect={val => handleChangeValue('uids', val)}
+          multible
+        />
+
+        <View>
+          <RowComponent justify="flex-start" onPress={handlePickerDocument}>
+            <TitleComponent text="Attachments" flex={0} />
+            <SpaceConponent width={8} />
+            <AttachSquare size={20} color={colors.white} />
+          </RowComponent>
+          {attachments.length > 0 &&
+            attachments.map((item, index) => (
+              <RowComponent
+                key={`attachments${index}`}
+                justify="flex-start"
+                styles={{
+                  paddingVertical: 12,
+                }}>
+                <TextComponent text={item.name ?? ''} flex={0} />
+              </RowComponent>
+            ))}
+        </View>
       </SectionComponent>
 
       <SectionComponent>
-        <Button onPress={handleAddNewTask} title={'Save'} />
+        <ButtonComponent onPress={handleAddNewTask} text={'Save'} />
       </SectionComponent>
+      
     </Container>
   );
 };
