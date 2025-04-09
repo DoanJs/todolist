@@ -7,6 +7,7 @@ import SigninScreen from '../screens/auth/SigninScreen';
 import HomeScreen from '../screens/homes/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import AddNewTask from '../screens/tasks/AddNewTask';
+import TaskDetailScreen from '../screens/tasks/TaskDetailScreen';
 
 const Router = () => {
   const [isLogin, setIsLogin] = useState(false);
@@ -37,6 +38,7 @@ const Router = () => {
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="AddNewTask" component={AddNewTask} />
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
+      <Stack.Screen name="TaskDetailScreen" component={TaskDetailScreen} />
     </Stack.Navigator>
   );
   const AuthRouter = (

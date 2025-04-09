@@ -5,7 +5,12 @@ import {fontFamilies} from '../contants/fontFamilies';
 import RowComponent from './RowComponent';
 import TextComponent from './TextComponent';
 
-const AvatarGroup = () => {
+interface Props {
+  uids: string[];
+}
+
+const AvatarGroup = (props: Props) => {
+  const {uids} = props;
   const uidsLenght = 10;
   const imageUrl =
     'https://www.thiennhien.net/wp-content/uploads/2013/01/280113_CS_voi.jpg';

@@ -1,13 +1,19 @@
 import {useNavigation} from '@react-navigation/native';
 import {ArrowLeft2} from 'iconsax-react-native';
 import React, {ReactNode} from 'react';
-import {ScrollView, TouchableOpacity, View} from 'react-native';
+import {
+  ScrollView,
+  StyleProp,
+  TouchableOpacity,
+  View,
+  ViewProps,
+} from 'react-native';
 import {colors} from '../contants/colors';
 import {fontFamilies} from '../contants/fontFamilies';
 import {globalStyles} from '../styles/globalStyles';
 import RowComponent from './RowComponent';
-import TextComponent from './TextComponent';
 import SpaceConponent from './SpaceConponent';
+import TextComponent from './TextComponent';
 
 interface Props {
   title?: string;
@@ -15,28 +21,30 @@ interface Props {
   right?: ReactNode;
   children: ReactNode;
   isScroll?: boolean;
+  styles?: StyleProp<ViewProps>;
 }
 
 const Container = (props: Props) => {
-  const {title, back, right, children, isScroll} = props;
+  const {title, back, right, children, isScroll, styles} = props;
   const navigation: any = useNavigation();
   return (
-    <View style={[globalStyles.container, {flex: 1}]}>
+    <View style={[globalStyles.container, {flex: 1}, styles]}>
       {/* Header container */}
 
       <RowComponent
         styles={{
           paddingHorizontal: 16,
           paddingBottom: 16,
+          paddingLeft: 4,
           justifyContent: 'center',
-          alignItems: 'center',
+          alignItems: 'flex-start',
         }}>
         {back && (
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <ArrowLeft2 size={24} color={colors.text} />
           </TouchableOpacity>
         )}
-        <SpaceConponent width={10}/>
+        <SpaceConponent width={30} />
         <View style={{flex: 1}}>
           {title && (
             <TextComponent
@@ -44,13 +52,17 @@ const Container = (props: Props) => {
               font={fontFamilies.bold}
               size={16}
               text={title}
-              styles={{textAlign: 'center', marginLeft: back ? -24 : 0}}
+              styles={{textAlign: 'left', marginLeft: back ? -24 : 0}}
             />
           )}
         </View>
       </RowComponent>
       {isScroll ? (
-        <ScrollView style={{flex: 1, flexGrow: 1}}>{children}</ScrollView>
+        <ScrollView
+          style={{flex: 1, flexGrow: 1}}
+          showsVerticalScrollIndicator={false}>
+          {children}
+        </ScrollView>
       ) : (
         <View style={{flex: 1}}>{children}</View>
       )}

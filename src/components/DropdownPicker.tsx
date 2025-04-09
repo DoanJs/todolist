@@ -100,7 +100,7 @@ const DropdownPicker = (props: Props) => {
         onPress={() => setIsvisible(true)}
         styles={[
           globalStyles.inputContainer,
-          {marginTop: title ? 8 : 0, paddingVertical: 16},
+          {marginTop: title ? 8 : 0, paddingVertical: 16, alignItems:'flex-start'},
         ]}>
         <View style={{flex: 1, paddingRight: 12}}>
           {selected && selected?.length > 0 ? (

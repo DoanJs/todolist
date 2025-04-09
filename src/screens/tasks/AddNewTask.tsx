@@ -1,5 +1,4 @@
 import {DocumentPickerResponse, pick} from '@react-native-documents/picker';
-import Cloudinary, {upload, UploadApiOptions} from 'cloudinary-react-native';
 import {addDoc, collection, getDocs} from 'firebase/firestore';
 import {AttachSquare} from 'iconsax-react-native';
 import React, {useEffect, useState} from 'react';
@@ -19,7 +18,6 @@ import {colors} from '../../contants/colors';
 import {SelectModel} from '../../models/SelectModel';
 import {TaskModel} from '../../models/TaskModel';
 
-import {launchImageLibrary} from 'react-native-image-picker';
 import axios from 'axios';
 import {CLOUDINARY_URL, UPLOAD_PRESET} from '../../../cloudinary.config';
 
@@ -37,7 +35,6 @@ const AddNewTask = ({navigation}: any) => {
   const [taskDetail, setTaskDetail] = useState<TaskModel>(initValue);
   const [usersSelect, setUsersSelect] = useState<SelectModel[]>([]);
   const [attachments, setAttachments] = useState<DocumentPickerResponse[]>([]);
-  const [attachmentsUrl, setAttachmentsUrl] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -45,7 +42,7 @@ const AddNewTask = ({navigation}: any) => {
   }, []);
 
   const handleUploadFileToClodinary = async (file: DocumentPickerResponse) => {
-    // setUploading(true);
+    setIsLoading(true);
     const items = [...taskDetail.fileUrls];
     const data = new FormData();
     data.append('file', file);
@@ -61,14 +58,17 @@ const AddNewTask = ({navigation}: any) => {
       items.push(res.data.secure_url);
       handleChangeValue('fileUrls', items);
       console.log(items);
+      return res.data.secure_url;
     } catch (err: any) {
       console.error('Upload attachments failed:', err.message);
     } finally {
-      // setUploading(false);
+      setIsLoading(false);
     }
   };
 
   const handlePickerDocument = async () => {
+    handleChangeValue('fileUrls', []);
+
     try {
       const result = await pick({
         mode: 'open',
@@ -110,15 +110,20 @@ const AddNewTask = ({navigation}: any) => {
     setTaskDetail(item);
   };
 
+  const asyncSequentialMap = async (arr: any) => {
+    const results = [];
+
+    for (const item of arr) {
+      const result = await handleUploadFileToClodinary(item);
+      results.push(result);
+    }
+    return results;
+  };
+
   const handleAddNewTask = async () => {
     setIsLoading(true);
-    if (attachments.length > 0) {
-      attachments.map((item: DocumentPickerResponse) =>
-        handleUploadFileToClodinary(item),
-      );
-    }
-
-    await addDoc(collection(db, 'taks'), taskDetail)
+    const fileUrls = await asyncSequentialMap(attachments);
+    await addDoc(collection(db, 'tasks'), {...taskDetail, fileUrls})
       .then(() => {
         console.log('New task added!!!');
         navigation.goBack();
@@ -128,8 +133,9 @@ const AddNewTask = ({navigation}: any) => {
     setIsLoading(false);
   };
 
+
   return (
-    <Container back title="Add new task">
+    <Container isScroll back title="Add new task">
       <SectionComponent>
         <InputComponent
           value={taskDetail.title}
@@ -187,9 +193,11 @@ const AddNewTask = ({navigation}: any) => {
 
         <View>
           <RowComponent justify="flex-start" onPress={handlePickerDocument}>
-            <TitleComponent text="Attachments" flex={0} />
-            <SpaceConponent width={8} />
-            <AttachSquare size={20} color={colors.white} />
+            <RowComponent styles={{flex: 1}} justify="flex-start">
+              <TitleComponent text="Attachments" flex={0} />
+              <SpaceConponent width={8} />
+              <AttachSquare size={20} color={colors.white} />
+            </RowComponent>
           </RowComponent>
           {attachments.length > 0 &&
             attachments.map((item, index) => (
@@ -206,9 +214,12 @@ const AddNewTask = ({navigation}: any) => {
       </SectionComponent>
 
       <SectionComponent>
-        <ButtonComponent onPress={handleAddNewTask} text={'Save'} />
+        <ButtonComponent
+          isLoading={isLoading}
+          onPress={handleAddNewTask}
+          text={'Save'}
+        />
       </SectionComponent>
-      
     </Container>
   );
 };
