@@ -22,6 +22,7 @@ import axios from 'axios';
 import {CLOUDINARY_URL, UPLOAD_PRESET} from '../../../cloudinary.config';
 
 const initValue: TaskModel = {
+  id: '',
   title: '',
   description: '',
   dueDate: new Date(),
@@ -132,7 +133,6 @@ const AddNewTask = ({navigation}: any) => {
 
     setIsLoading(false);
   };
-
 
   return (
     <Container isScroll back title="Add new task">

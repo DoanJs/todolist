@@ -382,7 +382,7 @@ const HomeScreen = ({navigation}: any) => {
                   <TouchableOpacity
                     onPress={() =>
                       navigation.navigate('TaskDetailScreen', {
-                        task: tasks[0],
+                        taskDetail: tasks[0],
                         color: 'rgba(113, 77, 217, 0.9)',
                       })
                     }>
