@@ -11,12 +11,14 @@ interface Props {
   color?: string;
   flex?: number;
   styles?: StyleProp<TextStyle>;
+  line?: number;
 }
 
 const TextComponent = (props: Props) => {
-  const {text, size, font, color, flex, styles} = props;
+  const {text, size, font, color, flex, styles, line} = props;
   return (
     <Text
+      numberOfLines={line}
       style={[
         globalStyles.text,
         {
@@ -24,6 +26,7 @@ const TextComponent = (props: Props) => {
           fontFamily: font ?? fontFamilies.regular,
           fontSize: size ?? 14,
           color: color ?? colors.desc,
+          textAlign:'justify'
         },
         styles,
       ]}>

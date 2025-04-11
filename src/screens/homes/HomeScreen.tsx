@@ -393,7 +393,7 @@ const HomeScreen = ({navigation}: any) => {
                         <Edit2 size={20} color={colors.white} />
                       </TouchableOpacity>
                       <TitleComponent text={tasks[0].title} />
-                      <TextComponent text={tasks[0].description} />
+                      <TextComponent text={tasks[0].description} line={3}/>
 
                       <View style={{marginVertical: 24}}>
                         {tasks[0].uids && <AvatarGroup uids={tasks[0].uids} />}

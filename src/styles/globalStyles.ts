@@ -23,6 +23,9 @@ export const globalStyles = StyleSheet.create({
     fontFamily: fontFamilies.regular,
     color: colors.text,
   },
+  documentImg: {
+    marginHorizontal: 8
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'center',
