@@ -290,6 +290,16 @@ const HomeScreen = ({navigation}: any) => {
   //   fetchData();
   // }, []);
 
+  const firebaseTimestampToDate = ({
+    seconds,
+    nanoseconds,
+  }: {
+    seconds: number;
+    nanoseconds: number;
+  }) => {
+    return new Date(seconds * 1000 + Math.floor(nanoseconds / 1e6));
+  };
+
   const handlegetAllTasks = async () => {
     setIsLoading(true);
     const q = query(
@@ -310,7 +320,9 @@ const HomeScreen = ({navigation}: any) => {
           items.push({
             id: item.id,
             ...item.data(),
-            start: new Date(item.data().start * 1000).toString(),
+            dueDate: firebaseTimestampToDate(item.data().dueDate),
+            end: firebaseTimestampToDate(item.data().end),
+            start: firebaseTimestampToDate(item.data().start),
           });
         });
 
@@ -393,7 +405,7 @@ const HomeScreen = ({navigation}: any) => {
                         <Edit2 size={20} color={colors.white} />
                       </TouchableOpacity>
                       <TitleComponent text={tasks[0].title} />
-                      <TextComponent text={tasks[0].description} line={3}/>
+                      <TextComponent text={tasks[0].description} line={3} />
 
                       <View style={{marginVertical: 24}}>
                         {tasks[0].uids && <AvatarGroup uids={tasks[0].uids} />}
@@ -406,7 +418,10 @@ const HomeScreen = ({navigation}: any) => {
                         )}
                       </View>
                       <TextComponent
-                        text={`Due, ${new Date(tasks[0].dueDate)}`}
+                        text={`Due, ${tasks[0].dueDate.getDate()} ${tasks[0].dueDate.toLocaleString(
+                          'en-US',
+                          {month: 'short'},
+                        )} ${tasks[0].dueDate.getFullYear()}`}
                         size={12}
                         color={colors.desc}
                       />
@@ -417,33 +432,49 @@ const HomeScreen = ({navigation}: any) => {
               <SpaceConponent width={16} />
               <View style={{flex: 1}}>
                 {tasks[1] && (
-                  <CardImageComponent color="rgba(33, 150, 243, 0.9)">
-                    <TouchableOpacity
-                      onPress={() => {}}
-                      style={[globalStyles.iconContainer]}>
-                      <Edit2 size={20} color={colors.white} />
-                    </TouchableOpacity>
-                    <TitleComponent text={tasks[1].title} />
-                    {tasks[1].uids && <AvatarGroup uids={tasks[1].uids} />}
-                    {tasks[1].progress && (
-                      <ProgressBarComponent
-                        percent="40%"
-                        color={colors.green}
-                      />
-                    )}
-                  </CardImageComponent>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('TaskDetailScreen', {
+                        taskDetail: tasks[1],
+                        color: 'rgba(33, 150, 243, 0.9)',
+                      })
+                    }>
+                    <CardImageComponent color="rgba(33, 150, 243, 0.9)">
+                      <TouchableOpacity
+                        onPress={() => {}}
+                        style={[globalStyles.iconContainer]}>
+                        <Edit2 size={20} color={colors.white} />
+                      </TouchableOpacity>
+                      <TitleComponent text={tasks[1].title} />
+                      {tasks[1].uids && <AvatarGroup uids={tasks[1].uids} />}
+                      {tasks[1].progress && (
+                        <ProgressBarComponent
+                          percent="40%"
+                          color={colors.green}
+                        />
+                      )}
+                    </CardImageComponent>
+                  </TouchableOpacity>
                 )}
                 <SpaceConponent height={16} />
                 {tasks[2] && (
-                  <CardImageComponent color="rgba(18, 181, 22, 0.9)">
-                    <TouchableOpacity
-                      onPress={() => {}}
-                      style={[globalStyles.iconContainer]}>
-                      <Edit2 size={20} color={colors.white} />
-                    </TouchableOpacity>
-                    <TitleComponent text={tasks[2].title} />
-                    <TextComponent text={tasks[2].description} />
-                  </CardImageComponent>
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate('TaskDetailScreen', {
+                        taskDetail: tasks[2],
+                        color: 'rgba(18, 181, 22, 0.9)',
+                      })
+                    }>
+                    <CardImageComponent color="rgba(18, 181, 22, 0.9)">
+                      <TouchableOpacity
+                        onPress={() => {}}
+                        style={[globalStyles.iconContainer]}>
+                        <Edit2 size={20} color={colors.white} />
+                      </TouchableOpacity>
+                      <TitleComponent text={tasks[2].title} />
+                      <TextComponent text={tasks[2].description} />
+                    </CardImageComponent>
+                  </TouchableOpacity>
                 )}
               </View>
             </RowComponent>

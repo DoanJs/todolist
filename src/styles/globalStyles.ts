@@ -24,7 +24,7 @@ export const globalStyles = StyleSheet.create({
     color: colors.text,
   },
   documentImg: {
-    marginHorizontal: 8
+    marginHorizontal: 4
   },
   row: {
     flexDirection: 'row',

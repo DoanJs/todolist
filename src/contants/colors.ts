@@ -8,5 +8,6 @@ export const colors = {
   blue: '#3168e0b3',
   blue1: '#0aacff',
   white: '#fafafa',
-  green: '#a2f068'
+  green: '#a2f068',
+  success: '#00733B'
 };

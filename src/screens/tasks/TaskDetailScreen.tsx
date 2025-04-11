@@ -1,35 +1,31 @@
-import React from 'react';
 import {
-  ScrollView,
-  StatusBar,
-  TouchableOpacity,
-  View,
-  ViewBase,
-} from 'react-native';
-import {colors} from '../../contants/colors';
-import SectionComponent from '../../components/SectionComponent';
-import RowComponent from '../../components/RowComponent';
-import {
+  AddSquare,
   ArrowLeft2,
   Calendar2,
   Clock,
-  DocumentUpload,
+  TickCircle,
 } from 'iconsax-react-native';
-import TitleComponent from '../../components/TitleComponent';
-import TextComponent from '../../components/TextComponent';
-import SpaceConponent from '../../components/SpaceConponent';
-import AvatarGroup from '../../components/AvatarGroup';
-import CardComponent from '../../components/CardComponent';
-import {TaskModel} from '../../models/TaskModel';
+import React from 'react';
+import {ScrollView, StatusBar, TouchableOpacity, View} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import AvatarGroup from '../../components/AvatarGroup';
+import CardComponent from '../../components/CardComponent';
+import RowComponent from '../../components/RowComponent';
+import SectionComponent from '../../components/SectionComponent';
+import SpaceConponent from '../../components/SpaceConponent';
+import TextComponent from '../../components/TextComponent';
+import TitleComponent from '../../components/TitleComponent';
+import {colors} from '../../contants/colors';
+import {fontFamilies} from '../../contants/fontFamilies';
+import {TaskModel} from '../../models/TaskModel';
 import {globalStyles} from '../../styles/globalStyles';
 
 const TaskDetailScreen = ({route, navigation}: any) => {
   const {color, taskDetail}: {color: string; taskDetail: TaskModel} =
     route.params;
-  console.log(taskDetail);
+
   return (
     <ScrollView style={{flex: 1, backgroundColor: colors.bgColor}}>
       <StatusBar barStyle="light-content" />
@@ -64,7 +60,16 @@ const TaskDetailScreen = ({route, navigation}: any) => {
               }}>
               <Clock size={20} color={colors.white} />
               <SpaceConponent width={4} />
-              <TextComponent flex={0} text="8 AM - 1PM" />
+              <TextComponent
+                flex={0}
+                text={`${new Date(taskDetail.start).toLocaleString('en-US', {
+                  hour: 'numeric',
+                  hour12: true,
+                })} - ${new Date(taskDetail.end).toLocaleString('en-US', {
+                  hour: 'numeric',
+                  hour12: true,
+                })}`}
+              />
             </RowComponent>
             <RowComponent
               styles={{
@@ -73,7 +78,13 @@ const TaskDetailScreen = ({route, navigation}: any) => {
               }}>
               <Calendar2 size={20} color={colors.white} />
               <SpaceConponent width={4} />
-              <TextComponent flex={0} text="21 Dec 2023" />
+              <TextComponent
+                flex={0}
+                text={`${taskDetail.dueDate.getDate()} ${taskDetail.dueDate.toLocaleString(
+                  'en-US',
+                  {month: 'short'},
+                )} ${taskDetail.dueDate.getFullYear()}`}
+              />
             </RowComponent>
             <RowComponent
               styles={{
@@ -85,6 +96,7 @@ const TaskDetailScreen = ({route, navigation}: any) => {
           </RowComponent>
         </View>
       </SectionComponent>
+
       <View style={{paddingHorizontal: 20}}>
         <SectionComponent>
           <TitleComponent text="Description" />
@@ -122,14 +134,77 @@ const TaskDetailScreen = ({route, navigation}: any) => {
                   color="#e5252a"
                   style={globalStyles.documentImg}
                 />
-                <DocumentUpload
-                  size={38}
+                <AntDesign
+                  name="addfile"
+                  size={34}
                   color={colors.white}
                   style={globalStyles.documentImg}
                 />
               </RowComponent>
             </RowComponent>
           </CardComponent>
+        </SectionComponent>
+
+        <SectionComponent>
+          <RowComponent>
+            <View
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: 100,
+                borderWidth: 2,
+                borderColor: colors.success,
+                marginRight: 4,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <View
+                style={{
+                  backgroundColor: colors.success,
+                  width: 14,
+                  height: 14,
+                  borderRadius: 100,
+                }}
+              />
+            </View>
+            <TextComponent
+              text="Progress"
+              flex={1}
+              font={fontFamilies.medium}
+              size={18}
+            />
+          </RowComponent>
+          <SpaceConponent height={12} />
+          <RowComponent>
+            <View style={{flex: 1}}>
+              <TextComponent text="Slide" />
+            </View>
+            <TextComponent
+              text="70%"
+              size={18}
+              flex={0}
+              font={fontFamilies.bold}
+            />
+          </RowComponent>
+        </SectionComponent>
+
+        <SectionComponent>
+          <RowComponent>
+            <TitleComponent text="Sub tasks" size={20} flex={1} />
+            <TouchableOpacity>
+              <AddSquare size={24} variant="Bold" color={colors.success} />
+            </TouchableOpacity>
+          </RowComponent>
+          <SpaceConponent height={12} />
+          {Array.from({length: 3}).map((item, index) => (
+            <CardComponent key={`subtask${index}`} styles={{marginBottom: 12}}>
+              <RowComponent>
+                <TickCircle color={colors.success} variant="Bold" size={22} />
+                <SpaceConponent width={8} />
+                <TextComponent text="asdsd" />
+              </RowComponent>
+            </CardComponent>
+          ))}
         </SectionComponent>
       </View>
     </ScrollView>
