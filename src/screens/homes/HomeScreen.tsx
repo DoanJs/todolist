@@ -31,6 +31,7 @@ import TitleComponent from '../../components/TitleComponent';
 import {colors} from '../../contants/colors';
 import {TaskModel} from '../../models/TaskModel';
 import {globalStyles} from '../../styles/globalStyles';
+import {firebaseTimestampToDate} from '../../contants/firebaseTimestampToDate';
 
 // import {collection, addDoc} from 'firebase/firestore';
 
@@ -290,16 +291,6 @@ const HomeScreen = ({navigation}: any) => {
   //   fetchData();
   // }, []);
 
-  const firebaseTimestampToDate = ({
-    seconds,
-    nanoseconds,
-  }: {
-    seconds: number;
-    nanoseconds: number;
-  }) => {
-    return new Date(seconds * 1000 + Math.floor(nanoseconds / 1e6));
-  };
-
   const handlegetAllTasks = async () => {
     setIsLoading(true);
     const q = query(
@@ -394,7 +385,7 @@ const HomeScreen = ({navigation}: any) => {
                   <TouchableOpacity
                     onPress={() =>
                       navigation.navigate('TaskDetailScreen', {
-                        taskDetail: tasks[0],
+                        id: tasks[0].id,
                         color: 'rgba(113, 77, 217, 0.9)',
                       })
                     }>
@@ -412,7 +403,7 @@ const HomeScreen = ({navigation}: any) => {
                         {tasks[0].progress && (
                           <ProgressBarComponent
                             size="large"
-                            percent="70%"
+                            percent={`${Math.floor(tasks[0].progress * 100)}%`}
                             color={colors.blue1}
                           />
                         )}
@@ -435,7 +426,7 @@ const HomeScreen = ({navigation}: any) => {
                   <TouchableOpacity
                     onPress={() =>
                       navigation.navigate('TaskDetailScreen', {
-                        taskDetail: tasks[1],
+                        id: tasks[1].id,
                         color: 'rgba(33, 150, 243, 0.9)',
                       })
                     }>
@@ -449,7 +440,7 @@ const HomeScreen = ({navigation}: any) => {
                       {tasks[1].uids && <AvatarGroup uids={tasks[1].uids} />}
                       {tasks[1].progress && (
                         <ProgressBarComponent
-                          percent="40%"
+                        percent={`${Math.floor(tasks[1].progress * 100)}%`}
                           color={colors.green}
                         />
                       )}
@@ -461,7 +452,7 @@ const HomeScreen = ({navigation}: any) => {
                   <TouchableOpacity
                     onPress={() =>
                       navigation.navigate('TaskDetailScreen', {
-                        taskDetail: tasks[2],
+                        id: tasks[2].id,
                         color: 'rgba(18, 181, 22, 0.9)',
                       })
                     }>
