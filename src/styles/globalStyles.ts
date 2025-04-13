@@ -1,4 +1,4 @@
-import {Platform, StyleSheet} from 'react-native';
+import {Dimensions, Platform, StyleSheet} from 'react-native';
 import {colors} from '../contants/colors';
 import {fontFamilies} from '../contants/fontFamilies';
 
@@ -24,7 +24,7 @@ export const globalStyles = StyleSheet.create({
     color: colors.text,
   },
   documentImg: {
-    marginHorizontal: 4
+    marginHorizontal: 4,
   },
   row: {
     flexDirection: 'row',
@@ -47,6 +47,23 @@ export const globalStyles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 14
+    marginBottom: 14,
+  },
+
+  modal: {
+    flex: 1,
+  },
+  modalContainer: {
+    padding: 20,
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    padding: 20,
+    borderRadius: 12,
+    backgroundColor: colors.white,
+    width: Dimensions.get('window').width * 0.8,
   },
 });

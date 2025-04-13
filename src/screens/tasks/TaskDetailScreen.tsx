@@ -30,7 +30,8 @@ import {colors} from '../../contants/colors';
 import {firebaseTimestampToDate} from '../../contants/firebaseTimestampToDate';
 import {fontFamilies} from '../../contants/fontFamilies';
 import {Attachment, TaskModel} from '../../models/TaskModel';
-import { bytesToMB } from '../../utils/bytesToMB';
+import {bytesToMB} from '../../utils/bytesToMB';
+import ModalAddSubTask from '../../modals/ModalAddSubTask';
 
 const TaskDetailScreen = ({route, navigation}: any) => {
   const {color, id}: {color: string; id: string} = route.params;
@@ -40,6 +41,7 @@ const TaskDetailScreen = ({route, navigation}: any) => {
   const [subTasks, setSubTasks] = useState<any[]>([]);
   const [isChanged, setIsChanged] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isVisibleModalSubTask, setIsVisibleModalSubTask] = useState(false);
 
   console.log(attachments);
 
@@ -201,7 +203,11 @@ const TaskDetailScreen = ({route, navigation}: any) => {
             {attachments.map((attachment: Attachment, index: number) => (
               <View key={`attachment${index}`}>
                 <TextComponent flex={0} text={attachment.name} />
-                <TextComponent flex={0} text={`${bytesToMB(attachment.size)} MB`} size={12}/>
+                <TextComponent
+                  flex={0}
+                  text={`${bytesToMB(attachment.size)} MB`}
+                  size={12}
+                />
               </View>
             ))}
           </SectionComponent>
@@ -264,12 +270,12 @@ const TaskDetailScreen = ({route, navigation}: any) => {
           <SectionComponent>
             <RowComponent>
               <TitleComponent text="Sub tasks" size={20} flex={1} />
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => setIsVisibleModalSubTask(true)}>
                 <AddSquare size={24} variant="Bold" color={colors.success} />
               </TouchableOpacity>
             </RowComponent>
             <SpaceConponent height={12} />
-            {Array.from({length: 3}).map((item, index) => (
+            {/* {Array.from({length: 3}).map((item, index) => (
               <CardComponent
                 key={`subtask${index}`}
                 styles={{marginBottom: 12}}>
@@ -279,7 +285,7 @@ const TaskDetailScreen = ({route, navigation}: any) => {
                   <TextComponent text="asdsd" />
                 </RowComponent>
               </CardComponent>
-            ))}
+            ))} */}
           </SectionComponent>
         </View>
       </ScrollView>
@@ -292,6 +298,12 @@ const TaskDetailScreen = ({route, navigation}: any) => {
           />
         </View>
       )}
+
+      <ModalAddSubTask
+        visible={isVisibleModalSubTask}
+        onClose={() => setIsVisibleModalSubTask(false)}
+        taskId={id}
+      />
     </>
   ) : (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
