@@ -463,7 +463,7 @@ const HomeScreen = ({navigation}: any) => {
                         <Edit2 size={20} color={colors.white} />
                       </TouchableOpacity>
                       <TitleComponent text={tasks[2].title} />
-                      <TextComponent text={tasks[2].description} />
+                      <TextComponent text={tasks[2].description} line={3}/>
                     </CardImageComponent>
                   </TouchableOpacity>
                 )}

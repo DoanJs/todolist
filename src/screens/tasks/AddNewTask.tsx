@@ -1,6 +1,4 @@
-import {DocumentPickerResponse, pick} from '@react-native-documents/picker';
 import {addDoc, collection, getDocs} from 'firebase/firestore';
-import {AttachSquare} from 'iconsax-react-native';
 import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {db} from '../../../firebaseConfig';
@@ -14,71 +12,30 @@ import SectionComponent from '../../components/SectionComponent';
 import SpaceConponent from '../../components/SpaceConponent';
 import TextComponent from '../../components/TextComponent';
 import TitleComponent from '../../components/TitleComponent';
-import {colors} from '../../contants/colors';
 import {SelectModel} from '../../models/SelectModel';
-import {TaskModel} from '../../models/TaskModel';
+import {Attachment, TaskModel} from '../../models/TaskModel';
 
-import axios from 'axios';
-import {CLOUDINARY_URL, UPLOAD_PRESET} from '../../../cloudinary.config';
+import UploadFileComponent from '../../components/UploadFileComponent';
 
 const initValue: TaskModel = {
-  id: '',
   title: '',
   description: '',
   dueDate: new Date(),
   start: new Date(),
   end: new Date(),
   uids: [],
-  fileUrls: [],
+  attachments: [],
 };
 
 const AddNewTask = ({navigation}: any) => {
   const [taskDetail, setTaskDetail] = useState<TaskModel>(initValue);
   const [usersSelect, setUsersSelect] = useState<SelectModel[]>([]);
-  const [attachments, setAttachments] = useState<DocumentPickerResponse[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     handlegetAllUsers();
   }, []);
-
-  const handleUploadFileToClodinary = async (file: DocumentPickerResponse) => {
-    setIsLoading(true);
-    const items = [...taskDetail.fileUrls];
-    const data = new FormData();
-    data.append('file', file);
-    data.append('upload_preset', UPLOAD_PRESET);
-
-    try {
-      const res = await axios.post(CLOUDINARY_URL, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      items.push(res.data.secure_url);
-      handleChangeValue('fileUrls', items);
-      console.log(items);
-      return res.data.secure_url;
-    } catch (err: any) {
-      console.error('Upload attachments failed:', err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePickerDocument = async () => {
-    handleChangeValue('fileUrls', []);
-
-    try {
-      const result = await pick({
-        mode: 'open',
-      });
-      setAttachments(result);
-    } catch (error: any) {
-      console.log(`handlePickerDocument error: ${error.message}`);
-    }
-  };
 
   const handlegetAllUsers = async () => {
     await getDocs(collection(db, 'users'))
@@ -103,7 +60,10 @@ const AddNewTask = ({navigation}: any) => {
       );
   };
 
-  const handleChangeValue = (id: string, value: string | string[] | Date) => {
+  const handleChangeValue = (
+    id: string,
+    value: string | string[] | Date | Attachment[],
+  ) => {
     const item: any = {...taskDetail};
 
     item[`${id}`] = value;
@@ -111,20 +71,9 @@ const AddNewTask = ({navigation}: any) => {
     setTaskDetail(item);
   };
 
-  const asyncSequentialMap = async (arr: any) => {
-    const results = [];
-
-    for (const item of arr) {
-      const result = await handleUploadFileToClodinary(item);
-      results.push(result);
-    }
-    return results;
-  };
-
   const handleAddNewTask = async () => {
     setIsLoading(true);
-    const fileUrls = await asyncSequentialMap(attachments);
-    await addDoc(collection(db, 'tasks'), {...taskDetail, fileUrls})
+    await addDoc(collection(db, 'tasks'), {...taskDetail, attachments})
       .then(() => {
         console.log('New task added!!!');
         navigation.goBack();
@@ -192,11 +141,14 @@ const AddNewTask = ({navigation}: any) => {
         />
 
         <View>
-          <RowComponent justify="flex-start" onPress={handlePickerDocument}>
+          <RowComponent justify="flex-start">
             <RowComponent styles={{flex: 1}} justify="flex-start">
               <TitleComponent text="Attachments" flex={0} />
               <SpaceConponent width={8} />
-              <AttachSquare size={20} color={colors.white} />
+              {/* <AttachSquare size={20} color={colors.white} /> */}
+              <UploadFileComponent
+                onUpload={file => setAttachments([...attachments, file])}
+              />
             </RowComponent>
           </RowComponent>
           {attachments.length > 0 &&

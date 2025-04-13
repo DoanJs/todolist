@@ -1,5 +1,5 @@
 export interface TaskModel {
-    id: string
+    id?: string
     title: string
     description: string
     dueDate: Date
@@ -7,6 +7,13 @@ export interface TaskModel {
     end: Date
     uids: string[]
     color?: string
-    fileUrls: string[]
+    attachments: Attachment[]
     progress?: number
+}
+
+export interface Attachment {
+    name: string
+    url: string
+    size: number
+    type?: string
 }

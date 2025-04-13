@@ -16,9 +16,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {db} from '../../../firebaseConfig';
 import AvatarGroup from '../../components/AvatarGroup';
 import ButtonComponent from '../../components/ButtonComponent';
@@ -28,20 +25,23 @@ import SectionComponent from '../../components/SectionComponent';
 import SpaceConponent from '../../components/SpaceConponent';
 import TextComponent from '../../components/TextComponent';
 import TitleComponent from '../../components/TitleComponent';
+import UploadFileComponent from '../../components/UploadFileComponent';
 import {colors} from '../../contants/colors';
 import {firebaseTimestampToDate} from '../../contants/firebaseTimestampToDate';
 import {fontFamilies} from '../../contants/fontFamilies';
-import {TaskModel} from '../../models/TaskModel';
-import {globalStyles} from '../../styles/globalStyles';
+import {Attachment, TaskModel} from '../../models/TaskModel';
+import { bytesToMB } from '../../utils/bytesToMB';
 
 const TaskDetailScreen = ({route, navigation}: any) => {
   const {color, id}: {color: string; id: string} = route.params;
   const [taskDetail, setTaskDetail] = useState<TaskModel>();
   const [progress, setProgress] = useState(0);
-  const [fileUrls, setFileUrls] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [subTasks, setSubTasks] = useState<any[]>([]);
   const [isChanged, setIsChanged] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  console.log(attachments);
 
   useEffect(() => {
     id && getTaskDetail(id);
@@ -49,18 +49,21 @@ const TaskDetailScreen = ({route, navigation}: any) => {
 
   useEffect(() => {
     if (taskDetail) {
-      setFileUrls(taskDetail.fileUrls);
       setProgress(taskDetail.progress as number);
+      setAttachments(taskDetail.attachments);
     }
   }, [taskDetail]);
 
   useEffect(() => {
-    if (taskDetail && taskDetail.progress !== progress) {
+    if (
+      (taskDetail && taskDetail.progress !== progress) ||
+      attachments.length !== taskDetail?.attachments.length
+    ) {
       setIsChanged(true);
     } else {
       setIsChanged(false);
     }
-  }, [progress, fileUrls, subTasks]);
+  }, [progress, subTasks, attachments]);
 
   const getTaskDetail = async (id: string) => {
     const docSnap = await getDoc(doc(db, 'tasks', id));
@@ -77,7 +80,13 @@ const TaskDetailScreen = ({route, navigation}: any) => {
   };
 
   const handleUpdateTask = async () => {
-    const data = {...taskDetail, progress, fileUrls, subTasks, updateAt: Date.now()};
+    const data = {
+      ...taskDetail,
+      progress,
+      attachments,
+      subTasks,
+      updateAt: Date.now(),
+    };
     const docRef = doc(db, 'tasks', id);
 
     setIsLoading(true);
@@ -180,37 +189,21 @@ const TaskDetailScreen = ({route, navigation}: any) => {
           </SectionComponent>
 
           <SectionComponent>
-            <CardComponent>
-              <RowComponent>
-                <TextComponent text="File & links" flex={0} />
-                <RowComponent styles={{flex: 1}}>
-                  <MaterialCommunityIcons
-                    name="file-excel"
-                    size={38}
-                    color="#00733B"
-                    style={globalStyles.documentImg}
-                  />
-                  <Ionicons
-                    name="document-text"
-                    size={38}
-                    color="#0263D1"
-                    style={globalStyles.documentImg}
-                  />
-                  <AntDesign
-                    name="pdffile1"
-                    size={34}
-                    color="#e5252a"
-                    style={globalStyles.documentImg}
-                  />
-                  <AntDesign
-                    name="addfile"
-                    size={34}
-                    color={colors.white}
-                    style={globalStyles.documentImg}
-                  />
-                </RowComponent>
-              </RowComponent>
-            </CardComponent>
+            <RowComponent>
+              <TitleComponent text="Files & links" flex={1} />
+              <UploadFileComponent
+                onUpload={file => {
+                  setAttachments([...attachments, file]);
+                }}
+              />
+            </RowComponent>
+
+            {attachments.map((attachment: Attachment, index: number) => (
+              <View key={`attachment${index}`}>
+                <TextComponent flex={0} text={attachment.name} />
+                <TextComponent flex={0} text={`${bytesToMB(attachment.size)} MB`} size={12}/>
+              </View>
+            ))}
           </SectionComponent>
 
           <SectionComponent>
