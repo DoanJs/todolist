@@ -41,6 +41,10 @@ const DropdownPicker = (props: Props) => {
     }
   }, [searchKey]);
 
+  useEffect(() => {
+    selected && setDataSelected(selected);
+  }, [selected]);
+
   const handleRemoveItemSelected = (index: number) => {
     if (selected) {
       selected?.splice(index, 1);
@@ -100,7 +104,11 @@ const DropdownPicker = (props: Props) => {
         onPress={() => setIsvisible(true)}
         styles={[
           globalStyles.inputContainer,
-          {marginTop: title ? 8 : 0, paddingVertical: 16, alignItems:'flex-start'},
+          {
+            marginTop: title ? 8 : 0,
+            paddingVertical: 16,
+            alignItems: 'flex-start',
+          },
         ]}>
         <View style={{flex: 1, paddingRight: 12}}>
           {selected && selected?.length > 0 ? (

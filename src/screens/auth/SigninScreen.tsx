@@ -12,8 +12,9 @@ import {colors} from '../../contants/colors';
 import {fontFamilies} from '../../contants/fontFamilies';
 import {globalStyles} from '../../styles/globalStyles';
 // import auth from '@react-native-firebase/auth';
-import {createUserWithEmailAndPassword} from 'firebase/auth';
+import {createUserWithEmailAndPassword, User, UserCredential} from 'firebase/auth';
 import {auth} from '../../../firebaseConfig';
+import {HandleUser} from '../../utils/handleUser';
 
 const SigninScreen = ({navigation}: any) => {
   const [email, setEmail] = useState('vidu1@gmail.com');
@@ -34,24 +35,13 @@ const SigninScreen = ({navigation}: any) => {
       setErrorText('');
       setIsLoading(true);
 
-      // await auth()
-      //   .createUserWithEmailAndPassword(email, password)
-      //   .then(userCredential => {
-      //     const user = userCredential.user;
-
-      //     // save user to firestore
-      //     setIsLoading(false);
-      //   })
-      //   .catch((error: any) => {
-      //     setIsLoading(false);
-      //     setErrorText(error.message);
-      //   });
       await createUserWithEmailAndPassword(auth, email, password)
         .then(userCredential => {
           // Signed up
-          const user = userCredential.user;
-
+          const user: User = userCredential.user;
           // save user to firestore
+          HandleUser.SaveToDatabase(user);
+
           setIsLoading(false);
         })
         .catch(error => {

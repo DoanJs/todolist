@@ -1,6 +1,7 @@
+import {getAuth} from 'firebase/auth';
 import {addDoc, collection, getDocs} from 'firebase/firestore';
 import React, {useEffect, useState} from 'react';
-import {View} from 'react-native';
+import {Alert, View} from 'react-native';
 import {db} from '../../../firebaseConfig';
 import ButtonComponent from '../../components/ButtonComponent';
 import Container from '../../components/Container';
@@ -12,10 +13,9 @@ import SectionComponent from '../../components/SectionComponent';
 import SpaceConponent from '../../components/SpaceConponent';
 import TextComponent from '../../components/TextComponent';
 import TitleComponent from '../../components/TitleComponent';
+import UploadFileComponent from '../../components/UploadFileComponent';
 import {SelectModel} from '../../models/SelectModel';
 import {Attachment, TaskModel} from '../../models/TaskModel';
-
-import UploadFileComponent from '../../components/UploadFileComponent';
 
 const initValue: TaskModel = {
   title: '',
@@ -27,15 +27,27 @@ const initValue: TaskModel = {
   attachments: [],
 };
 
-const AddNewTask = ({navigation}: any) => {
+const AddNewTask = ({navigation, route}: any) => {
+  const {editable, task}: {editable: boolean; task: TaskModel} = route.params;
+  
   const [taskDetail, setTaskDetail] = useState<TaskModel>(initValue);
   const [usersSelect, setUsersSelect] = useState<SelectModel[]>([]);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const user = getAuth().currentUser;
+
+  console.log({editable, task})
+
   useEffect(() => {
     handlegetAllUsers();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      setTaskDetail({...taskDetail, uids: [user.uid]});
+    }
+  }, [user]);
 
   const handlegetAllUsers = async () => {
     await getDocs(collection(db, 'users'))
@@ -47,7 +59,7 @@ const AddNewTask = ({navigation}: any) => {
 
           snap.forEach(item => {
             items.push({
-              label: item.data().name,
+              label: item.data().displayName,
               value: item.id,
             });
           });
@@ -72,15 +84,19 @@ const AddNewTask = ({navigation}: any) => {
   };
 
   const handleAddNewTask = async () => {
-    setIsLoading(true);
-    await addDoc(collection(db, 'tasks'), {...taskDetail, attachments})
-      .then(() => {
-        console.log('New task added!!!');
-        navigation.goBack();
-      })
-      .catch((error: any) => console.log(`Add task error: ${error.message}`));
+    if (user) {
+      setIsLoading(true);
+      await addDoc(collection(db, 'tasks'), {...taskDetail, attachments})
+        .then(() => {
+          console.log('New task added!!!');
+          navigation.goBack();
+        })
+        .catch((error: any) => console.log(`Add task error: ${error.message}`));
 
-    setIsLoading(false);
+      setIsLoading(false);
+    } else {
+      Alert.alert('You not login!!!');
+    }
   };
 
   return (
@@ -145,7 +161,6 @@ const AddNewTask = ({navigation}: any) => {
             <RowComponent styles={{flex: 1}} justify="flex-start">
               <TitleComponent text="Attachments" flex={0} />
               <SpaceConponent width={8} />
-              {/* <AttachSquare size={20} color={colors.white} /> */}
               <UploadFileComponent
                 onUpload={file => setAttachments([...attachments, file])}
               />

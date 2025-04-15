@@ -28,7 +28,6 @@ const LoginScreen = ({navigation}: any) => {
   }, [email, password]);
 
   const handleLoginWithEmail = async () => {
-    console.log(email, password);
     if (!email || !password) {
       setErrorText('Please enter your email or password!');
     } else {

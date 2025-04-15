@@ -1,12 +1,14 @@
 import React, {useState} from 'react';
-import {Modal, Text, TouchableOpacity, View} from 'react-native';
+import {Modal, TouchableOpacity, View} from 'react-native';
+import ButtonComponent from '../components/ButtonComponent';
+import InputComponent from '../components/InputComponent';
 import RowComponent from '../components/RowComponent';
 import TextComponent from '../components/TextComponent';
-import {globalStyles} from '../styles/globalStyles';
-import ButtonComponent from '../components/ButtonComponent';
-import {colors} from '../contants/colors';
 import TitleComponent from '../components/TitleComponent';
-import InputComponent from '../components/InputComponent';
+import {colors} from '../contants/colors';
+import {globalStyles} from '../styles/globalStyles';
+import {addDoc, collection} from 'firebase/firestore';
+import {db} from '../../firebaseConfig';
 
 interface Props {
   visible: boolean;
@@ -22,9 +24,10 @@ const initvalue = {
 const ModalAddSubTask = (props: Props) => {
   const {visible, subTask, onClose, taskId} = props;
   const [subTaskForm, setSubTaskForm] = useState(initvalue);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChangeValue = (key: string, value: string | boolean) => {
-    const data: any = {...subTask};
+    const data: any = {...subTaskForm};
 
     data[`${key}`] = value;
 
@@ -34,6 +37,27 @@ const ModalAddSubTask = (props: Props) => {
   const handleCloseModal = () => {
     setSubTaskForm(initvalue);
     onClose();
+  };
+
+  const handleSaveToDatabase = async () => {
+    const data = {
+      ...subTaskForm,
+      createAt: Date.now(),
+      updateAt: Date.now(),
+      taskId,
+    };
+
+    setIsLoading(true);
+    await addDoc(collection(db, 'subTasks'), data)
+      .then(() => {
+        // console.log(result.id)
+        handleCloseModal();
+      })
+      .catch((error: any) =>
+        console.log(`Add subTask error: ${error.message}`),
+      ).finally;
+
+    setIsLoading(false);
   };
   return (
     <Modal
@@ -50,15 +74,19 @@ const ModalAddSubTask = (props: Props) => {
               title="Title"
               placeholder="Title"
               value={subTaskForm.title}
+              color="#212121"
               onChange={val => handleChangeValue('title', val)}
-              />
+              allowClear
+            />
             <InputComponent
               title="Description"
               placeholder="Description"
               value={subTaskForm.description}
               onChange={val => handleChangeValue('description', val)}
               multible
+              color="#212121"
               numberOfLine={3}
+              allowClear
             />
           </View>
           <RowComponent>
@@ -68,7 +96,7 @@ const ModalAddSubTask = (props: Props) => {
               </TouchableOpacity>
             </View>
             <View style={{flex: 1}}>
-              <ButtonComponent text="Save" onPress={() => {}} />
+              <ButtonComponent text="Save" onPress={handleSaveToDatabase} />
             </View>
           </RowComponent>
         </View>

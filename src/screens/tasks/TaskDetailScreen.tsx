@@ -1,5 +1,13 @@
 import {Slider} from '@miblanchard/react-native-slider';
-import {doc, getDoc, updateDoc} from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import {
   AddSquare,
   ArrowLeft2,
@@ -29,24 +37,24 @@ import UploadFileComponent from '../../components/UploadFileComponent';
 import {colors} from '../../contants/colors';
 import {firebaseTimestampToDate} from '../../contants/firebaseTimestampToDate';
 import {fontFamilies} from '../../contants/fontFamilies';
-import {Attachment, TaskModel} from '../../models/TaskModel';
+import {Attachment, SubTaskModel, TaskModel} from '../../models/TaskModel';
 import {bytesToMB} from '../../utils/bytesToMB';
 import ModalAddSubTask from '../../modals/ModalAddSubTask';
+import {timeStampToDate} from '../../utils/handleDate';
 
 const TaskDetailScreen = ({route, navigation}: any) => {
   const {color, id}: {color: string; id: string} = route.params;
   const [taskDetail, setTaskDetail] = useState<TaskModel>();
   const [progress, setProgress] = useState(0);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [subTasks, setSubTasks] = useState<any[]>([]);
+  const [subTasks, setSubTasks] = useState<SubTaskModel[]>([]);
   const [isChanged, setIsChanged] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisibleModalSubTask, setIsVisibleModalSubTask] = useState(false);
 
-  console.log(attachments);
-
   useEffect(() => {
     id && getTaskDetail(id);
+    id && handleGetSubTaskById();
   }, [id]);
 
   useEffect(() => {
@@ -55,6 +63,14 @@ const TaskDetailScreen = ({route, navigation}: any) => {
       setAttachments(taskDetail.attachments);
     }
   }, [taskDetail]);
+
+  useEffect(() => {
+    if (subTasks.length > 0) {
+      const completedPercent =
+        subTasks.filter(element => element.isComplete).length / subTasks.length;
+      setProgress(completedPercent);
+    }
+  }, [subTasks]);
 
   useEffect(() => {
     if (
@@ -97,6 +113,49 @@ const TaskDetailScreen = ({route, navigation}: any) => {
         Alert.alert('Updated completed!!!');
         setIsLoading(false);
         setIsChanged(false);
+      })
+      .catch(error => {
+        setIsLoading(false);
+        console.log(error);
+      });
+  };
+
+  const handleGetSubTaskById = async () => {
+    setIsLoading(true);
+    const q = query(
+      collection(db, 'subTasks'),
+      where('taskId', '==', id),
+      // orderBy('dueDate', 'desc'),
+      // limit(3),
+      // where("uid", "==", user?.UserID)
+    );
+    await onSnapshot(q, doc => {
+      if (doc.empty) {
+        setIsLoading(false);
+        console.log(`subTask by Id data not found`);
+      } else {
+        const items: SubTaskModel[] = [];
+
+        doc.forEach((item: any) => {
+          items.push({
+            id: item.id,
+            ...item.data(),
+          });
+        });
+
+        setSubTasks(items);
+        setIsLoading(false);
+      }
+    });
+  };
+
+  const handleUpdateSubTask = async (id: string, isComplete: boolean) => {
+    const docRef = doc(db, 'subTasks', id);
+
+    setIsLoading(true);
+    await updateDoc(docRef, {isComplete: !isComplete})
+      .then(() => {
+        setIsLoading(false);
       })
       .catch(error => {
         setIsLoading(false);
@@ -245,6 +304,7 @@ const TaskDetailScreen = ({route, navigation}: any) => {
             <RowComponent>
               <View style={{flex: 1}}>
                 <Slider
+                  disabled
                   onValueChange={val => setProgress(val[0])}
                   value={progress}
                   maximumTrackTintColor={colors.gray2}
@@ -275,17 +335,32 @@ const TaskDetailScreen = ({route, navigation}: any) => {
               </TouchableOpacity>
             </RowComponent>
             <SpaceConponent height={12} />
-            {/* {Array.from({length: 3}).map((item, index) => (
-              <CardComponent
-                key={`subtask${index}`}
-                styles={{marginBottom: 12}}>
-                <RowComponent>
-                  <TickCircle color={colors.success} variant="Bold" size={22} />
-                  <SpaceConponent width={8} />
-                  <TextComponent text="asdsd" />
-                </RowComponent>
-              </CardComponent>
-            ))} */}
+            {subTasks.length > 0 &&
+              subTasks.map((item: SubTaskModel, index: number) => (
+                <CardComponent
+                  key={`subtask${index}`}
+                  styles={{marginBottom: 12}}>
+                  <RowComponent
+                    styles={{alignItems: 'flex-start'}}
+                    onPress={() =>
+                      handleUpdateSubTask(item.id, item.isComplete)
+                    }>
+                    <TickCircle
+                      color={colors.success}
+                      variant={item.isComplete ? 'Bold' : 'Outline'}
+                      size={22}
+                    />
+                    <View style={{flex: 1, marginLeft: 12}}>
+                      <TextComponent text={item.title} />
+                      <TextComponent
+                        size={12}
+                        color="#e0e0e0"
+                        text={timeStampToDate(item.createAt, ' ')}
+                      />
+                    </View>
+                  </RowComponent>
+                </CardComponent>
+              ))}
           </SectionComponent>
         </View>
       </ScrollView>
