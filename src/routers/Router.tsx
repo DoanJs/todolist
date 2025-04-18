@@ -7,19 +7,13 @@ import SigninScreen from '../screens/auth/SigninScreen';
 import HomeScreen from '../screens/homes/HomeScreen';
 import SearchScreen from '../screens/SearchScreen';
 import AddNewTask from '../screens/tasks/AddNewTask';
+import ListTasks from '../screens/tasks/ListTasks';
 import TaskDetailScreen from '../screens/tasks/TaskDetailScreen';
 
 const Router = () => {
   const [isLogin, setIsLogin] = useState(false);
-  useEffect(() => {
-    // auth.onAuthStateChanged(user => {
-    //   if (user) {
-    //     setIsLogin(true);
-    //   } else {
-    //     setIsLogin(false);
-    //   }
-    // });
 
+  useEffect(() => {
     onAuthStateChanged(auth, user => {
       if (user) {
         setIsLogin(true);
@@ -39,6 +33,7 @@ const Router = () => {
       <Stack.Screen name="AddNewTask" component={AddNewTask} />
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
       <Stack.Screen name="TaskDetailScreen" component={TaskDetailScreen} />
+      <Stack.Screen name="ListTasks" component={ListTasks} />
     </Stack.Navigator>
   );
   const AuthRouter = (

@@ -2872,6 +2872,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-firebase/messaging@npm:^21.14.0":
+  version: 21.14.0
+  resolution: "@react-native-firebase/messaging@npm:21.14.0"
+  peerDependencies:
+    "@react-native-firebase/app": 21.14.0
+    expo: ">=47.0.0"
+  peerDependenciesMeta:
+    expo:
+      optional: true
+  checksum: 10c0/ac411d311812f27bdddfeb21bd6f578c08650abdb0b4d43e06f0848e19081518c0ffc032b90c74eb2087148a400ec0c877aeb8f2bed528bada892050c2b46d84
+  languageName: node
+  linkType: hard
+
 "@react-native-firebase/storage@npm:^21.13.0":
   version: 21.13.0
   resolution: "@react-native-firebase/storage@npm:21.13.0"
@@ -10265,6 +10278,7 @@ __metadata:
     "@react-native-firebase/app": "npm:^21.13.0"
     "@react-native-firebase/auth": "npm:^21.13.0"
     "@react-native-firebase/firestore": "npm:^21.13.0"
+    "@react-native-firebase/messaging": "npm:^21.14.0"
     "@react-native-firebase/storage": "npm:^21.13.0"
     "@react-native/babel-preset": "npm:0.78.0"
     "@react-native/eslint-config": "npm:0.78.0"

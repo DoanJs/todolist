@@ -1,7 +1,7 @@
 import React from 'react';
 import {fontFamilies} from '../contants/fontFamilies';
 import TextComponent from './TextComponent';
-import { StyleProp, TextStyle } from 'react-native';
+import {StyleProp, TextStyle} from 'react-native';
 
 interface Props {
   text: string;
@@ -9,13 +9,15 @@ interface Props {
   size?: number;
   color?: string;
   flex?: number;
-  styles?: StyleProp<TextStyle>
+  styles?: StyleProp<TextStyle>;
+  line?: number;
 }
 
 const TitleComponent = (props: Props) => {
-  const {text, font, size, color, flex, styles} = props;
+  const {text, font, size, color, flex, styles, line} = props;
   return (
     <TextComponent
+      line={line}
       size={size ?? 20}
       font={font ?? fontFamilies.bold}
       color={color}

@@ -9,6 +9,9 @@ export interface TaskModel {
   color?: string;
   attachments: Attachment[];
   progress?: number;
+  createAt?: Date
+  updateAt?: Date
+  isUrgent?: boolean
 }
 
 export interface Attachment {

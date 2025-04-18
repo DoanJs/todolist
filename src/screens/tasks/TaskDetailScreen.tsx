@@ -1,6 +1,7 @@
 import {Slider} from '@miblanchard/react-native-slider';
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   onSnapshot,
@@ -14,6 +15,7 @@ import {
   Calendar2,
   Clock,
   TickCircle,
+  TickSquare,
 } from 'iconsax-react-native';
 import React, {useEffect, useState} from 'react';
 import {
@@ -51,6 +53,7 @@ const TaskDetailScreen = ({route, navigation}: any) => {
   const [isChanged, setIsChanged] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisibleModalSubTask, setIsVisibleModalSubTask] = useState(false);
+  const [isUrgent, setIsUrgent] = useState(false);
 
   useEffect(() => {
     id && getTaskDetail(id);
@@ -61,6 +64,7 @@ const TaskDetailScreen = ({route, navigation}: any) => {
     if (taskDetail) {
       setProgress(taskDetail.progress as number);
       setAttachments(taskDetail.attachments);
+      setIsUrgent(taskDetail.isUrgent);
     }
   }, [taskDetail]);
 
@@ -97,14 +101,7 @@ const TaskDetailScreen = ({route, navigation}: any) => {
     }
   };
 
-  const handleUpdateTask = async () => {
-    const data = {
-      ...taskDetail,
-      progress,
-      attachments,
-      subTasks,
-      updateAt: Date.now(),
-    };
+  const handleUpdateTask = async (data: any) => {
     const docRef = doc(db, 'tasks', id);
 
     setIsLoading(true);
@@ -163,6 +160,27 @@ const TaskDetailScreen = ({route, navigation}: any) => {
       });
   };
 
+  const handleRemoveTask = async () => {
+    Alert.alert('Confirm', 'Are you sure you want to delete task?', [
+      {text: 'Cancel', style: 'cancel'},
+      {text: 'Delete', onPress: () => handleRemove(), style: 'destructive'},
+    ]);
+  };
+
+  const handleRemove = async () => {
+    setIsLoading(true);
+    await deleteDoc(doc(db, 'tasks', id))
+      .then(() => {
+        setIsLoading(false);
+        navigation.goBack();
+      })
+      .catch(error => {
+        setIsLoading(false);
+        console.log(error.message);
+      })
+      .finally(() => setIsLoading(false));
+  };
+
   return taskDetail ? (
     <>
       <ScrollView style={{flex: 1, backgroundColor: colors.bgColor}}>
@@ -185,7 +203,7 @@ const TaskDetailScreen = ({route, navigation}: any) => {
                 style={{marginTop: -8, marginRight: 12}}
               />
             </TouchableOpacity>
-            <TitleComponent text={taskDetail.title} size={22} />
+            <TitleComponent text={taskDetail.title} size={22} line={1} />
           </RowComponent>
 
           <View style={{marginTop: 20}}>
@@ -269,6 +287,26 @@ const TaskDetailScreen = ({route, navigation}: any) => {
                 />
               </View>
             ))}
+          </SectionComponent>
+
+          <SectionComponent>
+            <RowComponent
+              onPress={() => {
+                setIsUrgent(!isUrgent);
+                handleUpdateTask({isUrgent: !isUrgent, updateAt: Date.now()});
+              }}>
+              <TickSquare
+                size={24}
+                color={isUrgent ? colors.success : colors.white}
+                variant={isUrgent ? 'Bold' : 'Outline'}
+              />
+              <SpaceConponent width={8} />
+              <TextComponent
+                text="Is Urgent"
+                font={fontFamilies.bold}
+                size={18}
+              />
+            </RowComponent>
           </SectionComponent>
 
           <SectionComponent>
@@ -362,6 +400,12 @@ const TaskDetailScreen = ({route, navigation}: any) => {
                 </CardComponent>
               ))}
           </SectionComponent>
+
+          <SectionComponent>
+            <RowComponent onPress={handleRemoveTask}>
+              <TextComponent text="Delete task" flex={0} color="red" />
+            </RowComponent>
+          </SectionComponent>
         </View>
       </ScrollView>
       {isChanged && (
@@ -369,7 +413,15 @@ const TaskDetailScreen = ({route, navigation}: any) => {
           <ButtonComponent
             isLoading={isLoading}
             text="Update"
-            onPress={handleUpdateTask}
+            onPress={() =>
+              handleUpdateTask({
+                ...taskDetail,
+                progress,
+                attachments,
+                subTasks,
+                updateAt: Date.now(),
+              })
+            }
           />
         </View>
       )}

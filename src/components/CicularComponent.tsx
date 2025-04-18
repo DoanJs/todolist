@@ -15,7 +15,7 @@ const CicularComponent = (props: Props) => {
   return (
     <CircularProgress
       value={value}
-      title={`${value}%`}
+      title={`${Math.floor(value)}%`}
       radius={radius ?? 46}
       showProgressValue={false}
       activeStrokeColor={color ?? colors.blue}

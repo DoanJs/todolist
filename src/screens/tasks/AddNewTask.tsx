@@ -1,5 +1,5 @@
 import {getAuth} from 'firebase/auth';
-import {addDoc, collection, getDocs} from 'firebase/firestore';
+import {addDoc, collection, doc, getDocs, setDoc} from 'firebase/firestore';
 import React, {useEffect, useState} from 'react';
 import {Alert, View} from 'react-native';
 import {db} from '../../../firebaseConfig';
@@ -25,19 +25,20 @@ const initValue: TaskModel = {
   end: new Date(),
   uids: [],
   attachments: [],
+  createAt: new Date(),
+  updateAt: new Date(),
+  isUrgent: false
 };
 
 const AddNewTask = ({navigation, route}: any) => {
   const {editable, task}: {editable: boolean; task: TaskModel} = route.params;
-  
+
   const [taskDetail, setTaskDetail] = useState<TaskModel>(initValue);
   const [usersSelect, setUsersSelect] = useState<SelectModel[]>([]);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const user = getAuth().currentUser;
-
-  console.log({editable, task})
 
   useEffect(() => {
     handlegetAllUsers();
@@ -48,6 +49,16 @@ const AddNewTask = ({navigation, route}: any) => {
       setTaskDetail({...taskDetail, uids: [user.uid]});
     }
   }, [user]);
+
+  useEffect(() => {
+    task &&
+      setTaskDetail({
+        ...task,
+        dueDate: new Date(task.dueDate),
+        start: new Date(task.start),
+        end: new Date(task.end),
+      });
+  }, [task]);
 
   const handlegetAllUsers = async () => {
     await getDocs(collection(db, 'users'))
@@ -86,12 +97,34 @@ const AddNewTask = ({navigation, route}: any) => {
   const handleAddNewTask = async () => {
     if (user) {
       setIsLoading(true);
-      await addDoc(collection(db, 'tasks'), {...taskDetail, attachments})
-        .then(() => {
-          console.log('New task added!!!');
-          navigation.goBack();
-        })
-        .catch((error: any) => console.log(`Add task error: ${error.message}`));
+      const data = {
+        ...taskDetail,
+        attachments,
+        createAt: task ? task.createAt : Date.now(),
+        updateAt: Date.now(),
+      };
+
+      if (task) {
+        const docRef = doc(db, 'tasks', `${task.id}`);
+        await setDoc(docRef, data)
+          .then(() => {
+            console.log('update task complete!!!');
+            navigation.goBack();
+          })
+          .catch(error => {
+            setIsLoading(false);
+            console.log(error);
+          });
+      } else {
+        await addDoc(collection(db, 'tasks'), data)
+          .then(() => {
+            console.log('New task added!!!');
+            navigation.goBack();
+          })
+          .catch((error: any) =>
+            console.log(`Add task error: ${error.message}`),
+          );
+      }
 
       setIsLoading(false);
     } else {
@@ -184,7 +217,7 @@ const AddNewTask = ({navigation, route}: any) => {
         <ButtonComponent
           isLoading={isLoading}
           onPress={handleAddNewTask}
-          text={'Save'}
+          text={task ? 'Update' : 'Save'}
         />
       </SectionComponent>
     </Container>
