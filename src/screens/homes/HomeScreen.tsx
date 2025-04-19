@@ -9,9 +9,11 @@ import {
   SearchNormal1,
 } from 'iconsax-react-native';
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Alert, TouchableOpacity, View} from 'react-native';
+import {messaging, onMessage} from '../../../firebase';
 import {auth, db} from '../../../firebaseConfig';
 import AvatarComponent from '../../components/AvatarComponent';
+import ButtonComponent from '../../components/ButtonComponent';
 import CardComponent from '../../components/CardComponent';
 import CardImageComponent from '../../components/CardImageComponent';
 import CicularComponent from '../../components/CicularComponent';
@@ -39,6 +41,15 @@ const HomeScreen = ({navigation}: any) => {
 
   useEffect(() => {
     HandleNotification.checkNotificaionPermission();
+
+    const unsubscribe = onMessage(messaging, async remoteMessage => {
+      Alert.alert(
+        'New Notification',
+        JSON.stringify(remoteMessage.notification),
+      );
+    });
+
+    return unsubscribe;
   }, []);
 
   useEffect(() => {
@@ -90,6 +101,10 @@ const HomeScreen = ({navigation}: any) => {
 
   const handleMoveToTaskDetail = (id: string, color?: string) =>
     navigation.navigate('TaskDetailScreen', {id, color});
+
+  const handleSendMessage = async () => {
+    console.log('send message');
+  };
   return (
     <View style={{flex: 1}}>
       <Container isScroll>
@@ -105,6 +120,10 @@ const HomeScreen = ({navigation}: any) => {
             <View style={{flex: 1}}>
               <TextComponent text={`Hi, ${user?.email}`} />
               <TitleComponent text="Be Productive today" />
+              <ButtonComponent
+                text="Send Message"
+                onPress={handleSendMessage}
+              />
             </View>
 
             <TouchableOpacity

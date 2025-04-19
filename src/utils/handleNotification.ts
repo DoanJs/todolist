@@ -1,63 +1,47 @@
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import {getApp} from '@react-native-firebase/app';
-// import messaging, {
-//   getMessaging,
-//   getToken,
-//   requestPermission,
-// } from '@react-native-firebase/messaging';
-import {auth, db} from '../../firebaseConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {arrayUnion, doc, getDoc, updateDoc} from 'firebase/firestore';
 import {Alert} from 'react-native';
+import {auth, db} from '../../firebaseConfig';
 
-import {getMessaging, getToken} from 'firebase/messaging';
+// Migrating to v22
+import {
+  hasPermission,
+  requestPermission,
+} from '@react-native-firebase/messaging';
+import {messaging} from '../../firebase';
 
-const messaging = getMessaging();
 const user = auth.currentUser;
 
 export class HandleNotification {
   static checkNotificaionPermission = async () => {
-    // const authStatus = await requestPermission(getMessaging(getApp()));
-    // if (
-    //   authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-    //   authStatus === messaging.AuthorizationStatus.PROVISIONAL
-    // ) {
-    //   this.getFCMToken();
-    // }
-    this.getFCMToken();
+    const permissionEnabled = await hasPermission(messaging);
+    if (permissionEnabled) {
+      console.log('Notification permission already granted');
+      return true;
+    }
+
+    try {
+      await requestPermission(messaging);
+      console.log('Notification permission granted');
+      this.getFCMToken()
+      return true;
+    } catch (error) {
+      console.log('Notification permission denied:', error);
+      return false;
+    }
   };
 
   static getFCMToken = async () => {
-    // const fcmToken = await AsyncStorage.getItem('fcmToken');
-    // if (!fcmToken) {
-    //   const token = await getToken(getMessaging(getApp()));
-    //   console.log('FCMToken:', token);
-    //   if (token) {
-    //     await AsyncStorage.setItem('fcmToken', token);
-    //     this.UpdateToken(token);
-    //   }
-    // }
-
-    getToken(messaging, {
-      vapidKey:
-        'BLdSOAEfIWjScfN76-Sj-xYvlgruRiGkEr66NqyxE-EGhRpSecdLpLQyhhRoZewjMhh7z1pZbNeoFl8iRdTgKLs',
-    })
-      .then(currentToken => {
-        console.log(currentToken);
-        if (currentToken) {
-          // Send the token to your server and update the UI if necessary
-          // ...
-        } else {
-          // Show permission request UI
-          console.log(
-            'No registration token available. Request permission to generate one.',
-          );
-          // ...
-        }
-      })
-      .catch(err => {
-        console.log('An error occurred while retrieving token. ', err);
-        // ...
-      });
+    const fcmToken = await AsyncStorage.getItem('fcmToken');
+    console.log('FCMToken exist:', fcmToken);
+    if (!fcmToken) {
+      const token = await messaging.getToken();
+      console.log('FCMToken new:', token);
+      if (token) {
+        await AsyncStorage.setItem('fcmToken', token);
+        this.UpdateToken(token);
+      }
+    }
   };
 
   static UpdateToken = async (token: string) => {
