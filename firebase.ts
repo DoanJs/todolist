@@ -1,5 +1,9 @@
-import {getMessaging, onMessage} from '@react-native-firebase/messaging';
+import {
+  getMessaging,
+  onMessage,
+  setBackgroundMessageHandler,
+} from '@react-native-firebase/messaging';
 
 const messaging = getMessaging();
 
-export {messaging, onMessage};
+export {messaging, onMessage, setBackgroundMessageHandler};

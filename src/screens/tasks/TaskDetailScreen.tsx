@@ -43,6 +43,8 @@ import {Attachment, SubTaskModel, TaskModel} from '../../models/TaskModel';
 import {bytesToMB} from '../../utils/bytesToMB';
 import ModalAddSubTask from '../../modals/ModalAddSubTask';
 import {timeStampToDate} from '../../utils/handleDate';
+import {HandleNotification} from '../../utils/handleNotification';
+import {getAuth} from 'firebase/auth';
 
 const TaskDetailScreen = ({route, navigation}: any) => {
   const {color, id}: {color: string; id: string} = route.params;
@@ -54,6 +56,8 @@ const TaskDetailScreen = ({route, navigation}: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isVisibleModalSubTask, setIsVisibleModalSubTask] = useState(false);
   const [isUrgent, setIsUrgent] = useState(false);
+
+  const user = getAuth().currentUser;
 
   useEffect(() => {
     id && getTaskDetail(id);
@@ -172,6 +176,15 @@ const TaskDetailScreen = ({route, navigation}: any) => {
     await deleteDoc(doc(db, 'tasks', id))
       .then(() => {
         setIsLoading(false);
+        taskDetail?.uids.forEach((id: string) => {
+          id !== user?.uid &&
+            HandleNotification.SendNotification({
+              body: `Task delete by ${user?.email}`,
+              title: 'Delete task',
+              taskId: taskDetail.id ?? '',
+              memberId: id,
+            });
+        });
         navigation.goBack();
       })
       .catch(error => {

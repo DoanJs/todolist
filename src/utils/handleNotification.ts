@@ -1,14 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {arrayUnion, doc, getDoc, updateDoc} from 'firebase/firestore';
-import {Alert} from 'react-native';
-import {auth, db} from '../../firebaseConfig';
+import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { Alert } from 'react-native';
+import { auth, db } from '../../firebaseConfig';
 
 // Migrating to v22
 import {
   hasPermission,
   requestPermission,
 } from '@react-native-firebase/messaging';
-import {messaging} from '../../firebase';
+import axios from 'axios';
+import { messaging } from '../../firebase';
+import { accessToken } from '../contants/appInfos';
 
 const user = auth.currentUser;
 
@@ -23,7 +25,7 @@ export class HandleNotification {
     try {
       await requestPermission(messaging);
       console.log('Notification permission granted');
-      this.getFCMToken()
+      this.getFCMToken();
       return true;
     } catch (error) {
       console.log('Notification permission denied:', error);
@@ -63,6 +65,51 @@ export class HandleNotification {
         }
       } else {
         console.log(`getDoc token in user error`);
+      }
+    }
+  };
+
+  static SendNotification = async ({
+    memberId,
+    title,
+    body,
+    taskId,
+  }: {
+    memberId: string;
+    title: string;
+    body: string;
+    taskId: string;
+  }) => {
+    if (user) {
+      try {
+        const docSnap = await getDoc(doc(db, 'users', memberId));
+
+        if (docSnap.exists() && docSnap.data().tokens) {
+          docSnap.data().tokens.map(async (token: string) => {
+            await axios.post(
+              'https://fcm.googleapis.com/v1/projects/todolistapp-f7869/messages:send',
+              {
+                message: {
+                  token,
+                  notification: {
+                    title,
+                    body,
+                  },
+                },
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                  'Content-Type': 'application/json',
+                },
+              },
+            );
+          });
+        } else {
+          console.log(`getDoc user detail error`);
+        }
+      } catch (error) {
+        console.log(error);
       }
     }
   };

@@ -10,7 +10,11 @@ import {
 } from 'iconsax-react-native';
 import React, {useEffect, useState} from 'react';
 import {ActivityIndicator, Alert, TouchableOpacity, View} from 'react-native';
-import {messaging, onMessage} from '../../../firebase';
+import {
+  messaging,
+  onMessage,
+  setBackgroundMessageHandler,
+} from '../../../firebase';
 import {auth, db} from '../../../firebaseConfig';
 import AvatarComponent from '../../components/AvatarComponent';
 import ButtonComponent from '../../components/ButtonComponent';
@@ -47,9 +51,24 @@ const HomeScreen = ({navigation}: any) => {
         'New Notification',
         JSON.stringify(remoteMessage.notification),
       );
+      console.log("notification")
     });
 
-    return unsubscribe;
+    const unsubscribeBackgroundMessage = setBackgroundMessageHandler(
+      messaging,
+      async remoteMessage => {
+        console.log('ok');
+        Alert.alert(
+          'New Notification by background',
+          JSON.stringify(remoteMessage.notification),
+        );
+      },
+    );
+
+    return () => {
+      unsubscribe;
+      unsubscribeBackgroundMessage;
+    };
   }, []);
 
   useEffect(() => {
@@ -166,11 +185,13 @@ const HomeScreen = ({navigation}: any) => {
                 </RowComponent>
               </View>
               <View>
-                <CicularComponent
-                  value={
-                    Math.floor(taskCompleted.length * 100) / allTasks.length
-                  }
-                />
+                {tasks.length > 0 && (
+                  <CicularComponent
+                    value={
+                      Math.floor(taskCompleted.length * 100) / allTasks.length
+                    }
+                  />
+                )}
               </View>
             </RowComponent>
           </CardComponent>

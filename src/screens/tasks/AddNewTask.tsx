@@ -16,6 +16,7 @@ import TitleComponent from '../../components/TitleComponent';
 import UploadFileComponent from '../../components/UploadFileComponent';
 import {SelectModel} from '../../models/SelectModel';
 import {Attachment, TaskModel} from '../../models/TaskModel';
+import {HandleNotification} from '../../utils/handleNotification';
 
 const initValue: TaskModel = {
   title: '',
@@ -27,7 +28,7 @@ const initValue: TaskModel = {
   attachments: [],
   createAt: new Date(),
   updateAt: new Date(),
-  isUrgent: false
+  isUrgent: false,
 };
 
 const AddNewTask = ({navigation, route}: any) => {
@@ -108,7 +109,17 @@ const AddNewTask = ({navigation, route}: any) => {
         const docRef = doc(db, 'tasks', `${task.id}`);
         await setDoc(docRef, data)
           .then(() => {
-            console.log('update task complete!!!');
+            if (usersSelect.length > 0) {
+              usersSelect.forEach(member => {
+                member.value !== user.uid &&
+                  HandleNotification.SendNotification({
+                    body: `Your task updated by ${user?.email}`,
+                    title: 'Update task',
+                    taskId: task.id ?? '',
+                    memberId: member.value,
+                  });
+              });
+            }
             navigation.goBack();
           })
           .catch(error => {
@@ -117,9 +128,18 @@ const AddNewTask = ({navigation, route}: any) => {
           });
       } else {
         await addDoc(collection(db, 'tasks'), data)
-          .then(() => {
-            console.log('New task added!!!');
-            navigation.goBack();
+          .then((snap) => {
+            if (usersSelect.length > 0) {
+              usersSelect.forEach(member => {
+                member.value !== user.uid &&
+                  HandleNotification.SendNotification({
+                    body: `New task add by ${user?.email}`,
+                    title: 'Add new task',
+                    taskId: snap.id ?? '',
+                    memberId: member.value,
+                  });
+              });
+            }
           })
           .catch((error: any) =>
             console.log(`Add task error: ${error.message}`),
