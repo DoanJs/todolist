@@ -51,7 +51,6 @@ const HomeScreen = ({navigation}: any) => {
         'New Notification',
         JSON.stringify(remoteMessage.notification),
       );
-      console.log("notification")
     });
 
     const unsubscribeBackgroundMessage = setBackgroundMessageHandler(
@@ -121,16 +120,29 @@ const HomeScreen = ({navigation}: any) => {
   const handleMoveToTaskDetail = (id: string, color?: string) =>
     navigation.navigate('TaskDetailScreen', {id, color});
 
-  const handleSendMessage = async () => {
-    console.log('send message');
-  };
   return (
     <View style={{flex: 1}}>
       <Container isScroll>
         <SectionComponent>
           <RowComponent justify="space-between">
             <Element4 size={24} color={colors.desc} />
-            <Notification size={24} color={colors.desc} />
+            <TouchableOpacity
+              onPress={() => navigation.navigate('NotificationsScreen')}>
+              <Notification size={24} color={colors.desc} />
+              <View
+                style={{
+                  height: 12,
+                  width: 12,
+                  backgroundColor: 'red',
+                  borderRadius: 100,
+                  right: 0,
+                  top: 0,
+                  position: 'absolute',
+                  borderWidth: 2,
+                  borderColor: colors.white,
+                }}
+              />
+            </TouchableOpacity>
           </RowComponent>
         </SectionComponent>
 
@@ -139,10 +151,6 @@ const HomeScreen = ({navigation}: any) => {
             <View style={{flex: 1}}>
               <TextComponent text={`Hi, ${user?.email}`} />
               <TitleComponent text="Be Productive today" />
-              <ButtonComponent
-                text="Send Message"
-                onPress={handleSendMessage}
-              />
             </View>
 
             <TouchableOpacity

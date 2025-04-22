@@ -5,6 +5,7 @@ import {auth} from '../../firebaseConfig';
 import LoginScreen from '../screens/auth/LoginScreen';
 import SigninScreen from '../screens/auth/SigninScreen';
 import HomeScreen from '../screens/homes/HomeScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
 import SearchScreen from '../screens/SearchScreen';
 import AddNewTask from '../screens/tasks/AddNewTask';
 import ListTasks from '../screens/tasks/ListTasks';
@@ -34,6 +35,10 @@ const Router = () => {
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
       <Stack.Screen name="TaskDetailScreen" component={TaskDetailScreen} />
       <Stack.Screen name="ListTasks" component={ListTasks} />
+      <Stack.Screen
+        name="NotificationsScreen"
+        component={NotificationsScreen}
+      />
     </Stack.Navigator>
   );
   const AuthRouter = (

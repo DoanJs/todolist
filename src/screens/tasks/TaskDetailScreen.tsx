@@ -111,9 +111,20 @@ const TaskDetailScreen = ({route, navigation}: any) => {
     setIsLoading(true);
     await updateDoc(docRef, data)
       .then(() => {
-        Alert.alert('Updated completed!!!');
+        Alert.alert('Updated urgent completed!!!');
         setIsLoading(false);
         setIsChanged(false);
+        if (taskDetail?.uids && taskDetail.uids.length > 0) {
+          taskDetail.uids.forEach(member => {
+            member !== user?.uid &&
+              HandleNotification.SendNotification({
+                body: `Your task updated urgent by ${user?.email}`,
+                title: 'Update task',
+                taskId: taskDetail.id ?? '',
+                memberId: member,
+              });
+          });
+        }
       })
       .catch(error => {
         setIsLoading(false);
@@ -157,6 +168,17 @@ const TaskDetailScreen = ({route, navigation}: any) => {
     await updateDoc(docRef, {isComplete: !isComplete})
       .then(() => {
         setIsLoading(false);
+        if (taskDetail?.uids && taskDetail.uids.length > 0) {
+          taskDetail.uids.forEach(member => {
+            member !== user?.uid &&
+              HandleNotification.SendNotification({
+                body: `Your task updated subtask by ${user?.email}`,
+                title: 'Update task',
+                taskId: taskDetail.id ?? '',
+                memberId: member,
+              });
+          });
+        }
       })
       .catch(error => {
         setIsLoading(false);

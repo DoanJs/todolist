@@ -128,7 +128,7 @@ const AddNewTask = ({navigation, route}: any) => {
           });
       } else {
         await addDoc(collection(db, 'tasks'), data)
-          .then((snap) => {
+          .then(snap => {
             if (usersSelect.length > 0) {
               usersSelect.forEach(member => {
                 member.value !== user.uid &&
@@ -140,6 +140,7 @@ const AddNewTask = ({navigation, route}: any) => {
                   });
               });
             }
+            navigation.goBack();
           })
           .catch((error: any) =>
             console.log(`Add task error: ${error.message}`),
