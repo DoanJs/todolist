@@ -3,6 +3,9 @@ const config = {
     HomeScreen: {
       path: 'HomeScreen',
     },
+    TaskDetailScreen: {
+      path: 'task-detail/:id',
+    },
   },
 };
 

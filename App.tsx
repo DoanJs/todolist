@@ -6,6 +6,7 @@ import {colors} from './src/contants/colors';
 import Router from './src/routers/Router';
 
 const App = () => {
+  // useNotificationHandler();
   return (
     <>
       <SafeAreaView style={{flex: 1, backgroundColor: colors.bgColor}}>

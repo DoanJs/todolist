@@ -17,7 +17,6 @@ import {
 } from '../../../firebase';
 import {auth, db} from '../../../firebaseConfig';
 import AvatarComponent from '../../components/AvatarComponent';
-import ButtonComponent from '../../components/ButtonComponent';
 import CardComponent from '../../components/CardComponent';
 import CardImageComponent from '../../components/CardImageComponent';
 import CicularComponent from '../../components/CicularComponent';
@@ -34,6 +33,10 @@ import {firebaseTimestampToDate} from '../../contants/firebaseTimestampToDate';
 import {TaskModel} from '../../models/TaskModel';
 import {globalStyles} from '../../styles/globalStyles';
 import {HandleNotification} from '../../utils/handleNotification';
+import {
+  getInitialNotification,
+  onNotificationOpenedApp,
+} from '@react-native-firebase/messaging';
 
 const HomeScreen = ({navigation}: any) => {
   const user = auth.currentUser;
@@ -46,28 +49,41 @@ const HomeScreen = ({navigation}: any) => {
   useEffect(() => {
     HandleNotification.checkNotificaionPermission();
 
-    const unsubscribe = onMessage(messaging, async remoteMessage => {
-      Alert.alert(
-        'New Notification',
-        JSON.stringify(remoteMessage.notification),
-      );
-    });
+    //Ứng dụng đang mở
+    // const unsubscribe = onMessage(messaging, async remoteMessage => {
+    //   Alert.alert(
+    //     'New Notification',
+    //     JSON.stringify(remoteMessage.notification),
+    //   );
+    //   console.log(remoteMessage);
+    // });
 
-    const unsubscribeBackgroundMessage = setBackgroundMessageHandler(
-      messaging,
-      async remoteMessage => {
-        console.log('ok');
-        Alert.alert(
-          'New Notification by background',
-          JSON.stringify(remoteMessage.notification),
-        );
-      },
-    );
+    // // Ứng dụng ở chế độ nền, người dùng chạm vào thông báo
+    // const unsubscribeBackgroundMessage = setBackgroundMessageHandler(
+    //   messaging,
+    //   async remoteMessage => {
+    //     console.log('ok');
+    //     Alert.alert(
+    //       'New Notification by background',
+    //       JSON.stringify(remoteMessage.notification),
+    //     );
+    //   },
+    // );
 
-    return () => {
-      unsubscribe;
-      unsubscribeBackgroundMessage;
-    };
+    // const unsubscribeA = onNotificationOpenedApp(messaging, mess => {
+    //   console.log('notification by onOpenApp:', mess);
+    //   Alert.alert('onOpenApp');
+    // });
+
+    // getInitialNotification(messaging).then(mess => {
+    //   console.log('app killed:', mess);
+    // });
+
+    // return () => {
+    //   unsubscribe;
+    //   unsubscribeA;
+    //   unsubscribeBackgroundMessage;
+    // };
   }, []);
 
   useEffect(() => {
