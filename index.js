@@ -8,15 +8,17 @@ import App from './App';
 import {name as appName} from './app.json';
 import {messaging, onMessage, setBackgroundMessageHandler} from './firebase';
 
+// khi ứng dụng đang mở/đang dùng/đang hoạt động
 onMessage(messaging, async remoteMessage => {
   Alert.alert(
     'Foreground notification',
     JSON.stringify(remoteMessage.notification),
   );
   console.log('Foreground notification', remoteMessage);
-  Linking.openURL(`todolist://app/task-detail/${remoteMessage.data?.taskId}`);
+  // Linking.openURL(`todolist://app/task-detail/${remoteMessage.data?.taskId}`);
 });
 
+// Khi ứng dụng chạy nền bên dưới
 setBackgroundMessageHandler(messaging, mess => {
   Alert.alert('background');
   console.log('notification in background:', mess);
