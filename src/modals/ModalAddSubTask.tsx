@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Modal, TouchableOpacity, View} from 'react-native';
 import ButtonComponent from '../components/ButtonComponent';
 import InputComponent from '../components/InputComponent';
@@ -7,8 +7,12 @@ import TextComponent from '../components/TextComponent';
 import TitleComponent from '../components/TitleComponent';
 import {colors} from '../contants/colors';
 import {globalStyles} from '../styles/globalStyles';
-import {addDoc, collection} from 'firebase/firestore';
+import {addDoc, collection, doc, getDoc} from 'firebase/firestore';
 import {db} from '../../firebaseConfig';
+import {HandleNotification} from '../utils/handleNotification';
+import {getAuth} from 'firebase/auth';
+import {TaskModel} from '../models/TaskModel';
+import {firebaseTimestampToDate} from '../contants/firebaseTimestampToDate';
 
 interface Props {
   visible: boolean;
@@ -23,8 +27,28 @@ const initvalue = {
 };
 const ModalAddSubTask = (props: Props) => {
   const {visible, subTask, onClose, taskId} = props;
+  const [task, setTask] = useState<TaskModel>();
   const [subTaskForm, setSubTaskForm] = useState(initvalue);
   const [isLoading, setIsLoading] = useState(false);
+  const user = getAuth().currentUser;
+
+  useEffect(() => {
+    taskId && getTaskDetail(taskId);
+  }, [taskId]);
+
+  const getTaskDetail = async (id: string) => {
+    const docSnap = await getDoc(doc(db, 'tasks', id));
+    if (docSnap.exists()) {
+      setTask({
+        ...docSnap.data(),
+        dueDate: firebaseTimestampToDate(docSnap.data().dueDate),
+        end: firebaseTimestampToDate(docSnap.data().end),
+        start: firebaseTimestampToDate(docSnap.data().start),
+      } as TaskModel);
+    } else {
+      console.log(`getDoc taskDetail error`);
+    }
+  };
 
   const handleChangeValue = (key: string, value: string | boolean) => {
     const data: any = {...subTaskForm};
@@ -50,12 +74,25 @@ const ModalAddSubTask = (props: Props) => {
     setIsLoading(true);
     await addDoc(collection(db, 'subTasks'), data)
       .then(() => {
-        // console.log(result.id)
+        // console.log(result.id) ---> subTaskID
+        if (task && task.uids.length > 0) {
+          task.uids.forEach(member => {
+            member !== user?.uid &&
+              HandleNotification.SendNotification({
+                body: `Your subTask '${
+                  subTaskForm.title ?? subTaskForm.description
+                }' create for task '${task.title}' by ${user?.email}`,
+                title: 'Create subTask',
+                taskId,
+                memberId: member,
+              });
+          });
+        }
+
         handleCloseModal();
       })
-      .catch((error: any) =>
-        console.log(`Add subTask error: ${error.message}`),
-      ).finally;
+      .catch((error: any) => console.log(`Add subTask error: ${error.message}`))
+      .finally;
 
     setIsLoading(false);
   };

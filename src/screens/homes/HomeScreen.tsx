@@ -9,12 +9,7 @@ import {
   SearchNormal1,
 } from 'iconsax-react-native';
 import React, {useEffect, useState} from 'react';
-import {ActivityIndicator, Alert, TouchableOpacity, View} from 'react-native';
-import {
-  messaging,
-  onMessage,
-  setBackgroundMessageHandler,
-} from '../../../firebase';
+import {ActivityIndicator, TouchableOpacity, View} from 'react-native';
 import {auth, db} from '../../../firebaseConfig';
 import AvatarComponent from '../../components/AvatarComponent';
 import CardComponent from '../../components/CardComponent';
@@ -33,10 +28,6 @@ import {firebaseTimestampToDate} from '../../contants/firebaseTimestampToDate';
 import {TaskModel} from '../../models/TaskModel';
 import {globalStyles} from '../../styles/globalStyles';
 import {HandleNotification} from '../../utils/handleNotification';
-import {
-  getInitialNotification,
-  onNotificationOpenedApp,
-} from '@react-native-firebase/messaging';
 
 const HomeScreen = ({navigation}: any) => {
   const user = auth.currentUser;
@@ -48,15 +39,6 @@ const HomeScreen = ({navigation}: any) => {
 
   useEffect(() => {
     HandleNotification.checkNotificaionPermission();
-
-    //Ứng dụng đang mở
-    // const unsubscribe = onMessage(messaging, async remoteMessage => {
-    //   Alert.alert(
-    //     'New Notification',
-    //     JSON.stringify(remoteMessage.notification),
-    //   );
-    //   console.log(remoteMessage);
-    // });
 
     // // Ứng dụng ở chế độ nền, người dùng chạm vào thông báo
     // const unsubscribeBackgroundMessage = setBackgroundMessageHandler(

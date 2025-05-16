@@ -201,7 +201,9 @@ const TaskDetailScreen = ({route, navigation}: any) => {
         taskDetail?.uids.forEach((id: string) => {
           id !== user?.uid &&
             HandleNotification.SendNotification({
-              body: `Task delete by ${user?.email}`,
+              body: `Task '${
+                taskDetail.title ?? taskDetail.description
+              }' delete by ${user?.email}`,
               title: 'Delete task',
               taskId: taskDetail.id ?? '',
               memberId: id,

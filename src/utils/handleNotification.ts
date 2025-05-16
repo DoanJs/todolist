@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { arrayUnion, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { Alert } from 'react-native';
-import { auth, db } from '../../firebaseConfig';
+import {arrayUnion, doc, getDoc, updateDoc} from 'firebase/firestore';
+import {Alert} from 'react-native';
+import {auth, db} from '../../firebaseConfig';
 
 // Migrating to v22
 import {
@@ -9,8 +9,8 @@ import {
   requestPermission,
 } from '@react-native-firebase/messaging';
 import axios from 'axios';
-import { messaging } from '../../firebase';
-import { accessToken } from '../contants/appInfos';
+import {messaging} from '../../firebase';
+import {accessToken} from '../contants/appInfos';
 
 const user = auth.currentUser;
 
@@ -64,7 +64,7 @@ export class HandleNotification {
             });
         }
       } else {
-        console.log(`getDoc token in user error`);
+        console.log('getDoc token in user error');
       }
     }
   };
@@ -95,6 +95,9 @@ export class HandleNotification {
                     title,
                     body,
                   },
+                  data: {
+                    taskId,
+                  },
                 },
               },
               {
@@ -106,7 +109,7 @@ export class HandleNotification {
             );
           });
         } else {
-          console.log(`getDoc user detail error`);
+          console.log('getDoc user detail error');
         }
       } catch (error) {
         console.log(error);

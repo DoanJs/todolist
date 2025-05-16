@@ -105,6 +105,20 @@ const AddNewTask = ({navigation, route}: any) => {
         updateAt: Date.now(),
       };
 
+      const notification = {
+        senderId: user?.uid,
+        recevicerIds:
+          taskDetail.uids.length > 0
+            ? taskDetail.uids.filter((id: string) => id !== user?.uid)
+            : [],
+        content: {
+          title: '',
+          body: '',
+        },
+        createAt: Date.now(),
+        updateAt: Date.now(),
+      };
+
       if (task) {
         const docRef = doc(db, 'tasks', `${task.id}`);
         await setDoc(docRef, data)
@@ -144,6 +158,16 @@ const AddNewTask = ({navigation, route}: any) => {
           })
           .catch((error: any) =>
             console.log(`Add task error: ${error.message}`),
+          );
+
+        await addDoc(collection(db, 'notifications'), {
+          ...notification,
+        })
+          .then(snap => {
+            console.log(snap);
+          })
+          .catch((error: any) =>
+            console.log(`Add notification new task error: ${error.message}`),
           );
       }
 
