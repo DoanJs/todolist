@@ -1,6 +1,7 @@
 import {NavigationContainer} from '@react-navigation/native';
 import React, {useEffect} from 'react';
-import {Alert, Linking, SafeAreaView, StatusBar} from 'react-native';
+import {Alert, SafeAreaView, StatusBar} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {messaging, onMessage} from './firebase';
 import linking from './linking';
 import {colors} from './src/contants/colors';
@@ -21,7 +22,7 @@ const App = () => {
     return unsubscribe;
   }, []);
   return (
-    <>
+    <GestureHandlerRootView style={{flex: 1}}>
       <SafeAreaView style={{flex: 1, backgroundColor: colors.bgColor}}>
         <StatusBar
           translucent
@@ -32,7 +33,7 @@ const App = () => {
           <Router />
         </NavigationContainer>
       </SafeAreaView>
-    </>
+    </GestureHandlerRootView>
   );
 };
 

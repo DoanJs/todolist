@@ -9,15 +9,17 @@ import {globalStyles} from '../styles/globalStyles';
 interface Props {
   uid: string;
   index?: number;
+  height?: number;
+  width?: number;
 }
 
 const AvatarComponent = (props: Props) => {
-  const {uid, index} = props;
+  const {uid, index, width, height} = props;
   const [userDetail, setUserDetail] = useState<any>();
 
   const imageStyle = {
-    width: 32,
-    height: 32,
+    width: width ?? 32,
+    height: height ?? 32,
     borderRadius: 100,
     borderWidth: 2,
     borderColor: colors.white,

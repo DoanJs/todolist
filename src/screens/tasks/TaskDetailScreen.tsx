@@ -225,7 +225,7 @@ const TaskDetailScreen = ({route, navigation}: any) => {
 
         <SectionComponent
           styles={{
-            backgroundColor: color ?? 'rgba(113, 77, 217, 0.9',
+            backgroundColor: color ?? 'rgba(113, 77, 217, 0.9)',
             padding: 20,
             paddingTop: 60,
             paddingBottom: 18,

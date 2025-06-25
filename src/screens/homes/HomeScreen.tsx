@@ -28,6 +28,7 @@ import {firebaseTimestampToDate} from '../../contants/firebaseTimestampToDate';
 import {TaskModel} from '../../models/TaskModel';
 import {globalStyles} from '../../styles/globalStyles';
 import {HandleNotification} from '../../utils/handleNotification';
+import {NotificationModel} from '../../models/NotificationModel';
 
 const HomeScreen = ({navigation}: any) => {
   const user = auth.currentUser;
@@ -36,6 +37,7 @@ const HomeScreen = ({navigation}: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const [urgentTask, setUrgentTask] = useState<TaskModel[]>([]);
   const [taskCompleted, setTaskCompleted] = useState<TaskModel[]>([]);
+  const [notifications, setNotifications] = useState<NotificationModel[]>([]);
 
   useEffect(() => {
     HandleNotification.checkNotificaionPermission();
@@ -67,9 +69,11 @@ const HomeScreen = ({navigation}: any) => {
     //   unsubscribeBackgroundMessage;
     // };
   }, []);
-
   useEffect(() => {
-    user && handlegetAllTasks();
+    if (user) {
+      handlegetAllTasks();
+      handleGetAllNotifications();
+    }
   }, [user]);
 
   useEffect(() => {
@@ -81,6 +85,27 @@ const HomeScreen = ({navigation}: any) => {
       setTaskCompleted(arr);
     }
   }, [allTasks]);
+
+  const handleGetAllNotifications = async () => {
+    const q = query(
+      collection(db, 'notifications'),
+      where('recevicerIds', 'array-contains', user?.uid),
+    );
+    await onSnapshot(q, doc => {
+      if (doc.empty) {
+        setNotifications([]);
+      } else {
+        const items: any = [];
+        doc.forEach(res => {
+          items.push({
+            id: res.id,
+            ...res.data(),
+          });
+        });
+        setNotifications(items);
+      }
+    });
+  };
 
   const handlegetAllTasks = async () => {
     setIsLoading(true);
@@ -127,19 +152,23 @@ const HomeScreen = ({navigation}: any) => {
             <TouchableOpacity
               onPress={() => navigation.navigate('NotificationsScreen')}>
               <Notification size={24} color={colors.desc} />
-              <View
-                style={{
-                  height: 12,
-                  width: 12,
-                  backgroundColor: 'red',
-                  borderRadius: 100,
-                  right: 0,
-                  top: 0,
-                  position: 'absolute',
-                  borderWidth: 2,
-                  borderColor: colors.white,
-                }}
-              />
+              {notifications &&
+                notifications.filter((item: any) => !item.isRead).length >
+                  0 && (
+                  <View
+                    style={{
+                      height: 12,
+                      width: 12,
+                      backgroundColor: 'red',
+                      borderRadius: 100,
+                      right: 0,
+                      top: 0,
+                      position: 'absolute',
+                      borderWidth: 2,
+                      borderColor: colors.white,
+                    }}
+                  />
+                )}
             </TouchableOpacity>
           </RowComponent>
         </SectionComponent>

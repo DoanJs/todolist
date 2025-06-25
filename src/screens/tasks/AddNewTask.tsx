@@ -111,10 +111,10 @@ const AddNewTask = ({navigation, route}: any) => {
           taskDetail.uids.length > 0
             ? taskDetail.uids.filter((id: string) => id !== user?.uid)
             : [],
-        content: {
-          title: '',
-          body: '',
-        },
+        isRead: false,
+        title: '',
+        body: '',
+        objectId: '',
         createAt: Date.now(),
         updateAt: Date.now(),
       };
@@ -142,7 +142,7 @@ const AddNewTask = ({navigation, route}: any) => {
           });
       } else {
         await addDoc(collection(db, 'tasks'), data)
-          .then(snap => {
+          .then(async snap => {
             if (usersSelect.length > 0) {
               usersSelect.forEach(member => {
                 member.value !== user.uid &&
@@ -154,20 +154,25 @@ const AddNewTask = ({navigation, route}: any) => {
                   });
               });
             }
+
+            await addDoc(collection(db, 'notifications'), {
+              ...notification,
+              body: `New task add by ${user?.email}`,
+              title: 'Add new task',
+              objectId: snap.id ?? '',
+            })
+              .then(result => {
+                console.log(result);
+              })
+              .catch((error: any) =>
+                console.log(
+                  `Add notification new task error: ${error.message}`,
+                ),
+              );
             navigation.goBack();
           })
           .catch((error: any) =>
             console.log(`Add task error: ${error.message}`),
-          );
-
-        await addDoc(collection(db, 'notifications'), {
-          ...notification,
-        })
-          .then(snap => {
-            console.log(snap);
-          })
-          .catch((error: any) =>
-            console.log(`Add notification new task error: ${error.message}`),
           );
       }
 
